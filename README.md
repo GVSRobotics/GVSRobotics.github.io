@@ -2,22 +2,6 @@
 
 Static GitHub Pages site for the GVS Robotics organization.
 
-## Add it to `GVSRobotics/.github`
-
-Copy all files in this package into the repository root **without deleting the existing `profile/` folder**.
-
-Then open repository **Settings → Pages** and select:
-
-- Source: **Deploy from a branch**
-- Branch: **main**
-- Folder: **/ (root)**
-
-Because the repository is named `.github`, the default project-site URL will normally be:
-
-`https://gvsrobotics.github.io/.github/`
-
-For the cleaner organization URL `https://gvsrobotics.github.io/`, use a repository named `GVSRobotics.github.io` instead. The same files work there unchanged.
-
 ## Add a new project
 
 1. Open `projects/projects.json`.
