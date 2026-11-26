@@ -62,7 +62,6 @@ nav a:hover{border-color:var(--ink)}
 .project-card .card-link{margin-top:auto;font-weight:600;font-size:14px;color:var(--accent)}
 .project-card.coming-soon{border-style:dashed;background:linear-gradient(180deg,#fff,var(--paper))}
 .project-card.coming-soon:hover{transform:none;border-color:var(--line)}
-.project-card.coming-soon .card-link{color:var(--muted)}
 .project-card .soon{background:var(--accent);color:#fff;border-radius:999px;padding:3px 9px;letter-spacing:.08em}
 
 /* Research */

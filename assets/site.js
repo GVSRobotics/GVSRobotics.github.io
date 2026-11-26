@@ -9,7 +9,6 @@ if (grid) {
           <div class="meta"><span class="tag">${p.language}</span><span class="soon">Coming soon</span></div>
           <h3>${p.name}</h3>
           <p>${p.shortDescription}</p>
-          <span class="card-link">Release in preparation</span>
         </div>`;
         const external = /^https?:\/\//.test(p.cardHref);
         const isGithub = /^https?:\/\/github\.com\//.test(p.cardHref);
