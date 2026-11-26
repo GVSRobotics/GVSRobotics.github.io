@@ -10,6 +10,20 @@ Static GitHub Pages site for the GVS Robotics organization.
 4. In the copied `index.html`, replace `PROJECT_SLUG` with `new-project`.
 5. Commit and push. The landing-page card and project page will both appear automatically.
 
+### Interactive explainer pages
+
+Some projects have a hand-written page instead of the generated template:
+`projects/coal/` and `projects/dcolpp/`. Each has an `index.html` (content) and a
+`demo.js` (2D demos). They share:
+
+- `assets/geom2d.js`: small 2D convex-geometry toolkit (signed distance, Minkowski
+  difference, scale-to-touch) and canvas helpers used by the demos
+- `assets/explainer.js`: on-demand playground embed, copy buttons, and the
+  table of contents
+- the `Explainer project pages` block at the end of `assets/styles.css`
+
+Their `projects.json` entries still drive the landing-page cards.
+
 ### Project data fields
 
 - `slug`: URL folder name

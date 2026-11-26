@@ -26,6 +26,60 @@
     ]
   },
   {
+    "slug": "dcolpp",
+    "name": "DCOL++",
+    "language": "C++",
+    "accent": "#6a4bd8",
+    "cardHref": "projects/dcolpp/",
+    "shortDescription": "Differentiable collision detection for convex 3D shapes, with exact analytic first and second derivatives.",
+    "kicker": "Collision detection that tells an optimizer which way to move.",
+    "description": "DCOL++ turns each proximity query between two convex bodies into a small second-order cone program and differentiates it exactly, for use in physics engines, trajectory optimizers, and contact-rich planners.",
+    "body": "It returns a smooth scale-to-touch measure, witness points, the contact normal, and their first and second derivatives with respect to the relative pose, without autodiff or finite differences.",
+    "features": [
+      "Proximity and contact for eight convex primitives plus a ground plane",
+      "Analytic first and second derivatives",
+      "Contact-manifold and degeneracy detection",
+      "Warm-starting and optional broad-phase culling"
+    ],
+    "links": [
+      {"label": "Project page", "url": "https://gvsrobotics.github.io/projects/dcolpp/"},
+      {"label": "Playground", "url": "https://gvsrobotics.github.io/DCOLpp/"},
+      {"label": "GitHub repository", "url": "https://github.com/GVSRobotics/DCOLpp"}
+    ],
+    "facts": [
+      {"label": "Formulation", "value": "Second-order cone program"},
+      {"label": "Derivatives", "value": "Analytic, 1st & 2nd order"},
+      {"label": "Dependencies", "value": "C++17 + Eigen"}
+    ]
+  },
+  {
+    "slug": "coal",
+    "name": "COAL",
+    "language": "C++ · Python",
+    "accent": "#b3402a",
+    "cardHref": "projects/coal/",
+    "shortDescription": "Our fork of the Coal collision library: fast distance and contact queries, plus contact derivatives, a truncated-cone shape, and a browser playground.",
+    "kicker": "Are these two objects touching? If not, how far apart are they?",
+    "description": "A fork of Coal, the GJK/EPA-based collision and distance library used by Pinocchio and other robotics frameworks, extended for differentiable contact.",
+    "body": "The fork adds experimental contact derivatives (piecewise exact or randomized smoothing), a TruncatedCone primitive, and an interactive WebAssembly playground.",
+    "features": [
+      "Collision, distance and contact patches between many shape types",
+      "Contact derivatives of witnesses, normal and signed distance",
+      "TruncatedCone primitive with Python bindings",
+      "Browser-based solver playground"
+    ],
+    "links": [
+      {"label": "Project page", "url": "https://gvsrobotics.github.io/projects/coal/"},
+      {"label": "Playground", "url": "https://gvsrobotics.github.io/coal/"},
+      {"label": "GitHub repository", "url": "https://github.com/GVSRobotics/coal"}
+    ],
+    "facts": [
+      {"label": "Core", "value": "GJK / EPA"},
+      {"label": "Adds", "value": "Contact derivatives"},
+      {"label": "Interface", "value": "C++ and Python"}
+    ]
+  },
+  {
     "slug": "implicit-routing",
     "name": "Implicit Routing",
     "language": "MATLAB",
