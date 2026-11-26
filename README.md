@@ -13,14 +13,15 @@ Static GitHub Pages site for the GVS Robotics organization.
 ### Interactive explainer pages
 
 Some projects have a hand-written page instead of the generated template:
-`projects/coal/` and `projects/dcolpp/`. Each has an `index.html` (content) and a
-`demo.js` (2D demos). They share:
+`projects/coal/` and `projects/dcolpp/`. They follow the look of the
+[iDCOL site](https://gvsrobotics.github.io/iDCOL/), since the three libraries are related.
+Each page has an `index.html` (content) and a `demo.js` (2D demos). They share:
 
+- `assets/project-site.css`: the iDCOL-family design (dark by default, light via
+  system preference or the MODE toggle)
+- `assets/project-site.js`: theme toggle, on-demand playground embed, copy buttons
 - `assets/geom2d.js`: small 2D convex-geometry toolkit (signed distance, Minkowski
-  difference, scale-to-touch) and canvas helpers used by the demos
-- `assets/explainer.js`: on-demand playground embed, copy buttons, and the
-  table of contents
-- the `Explainer project pages` block at the end of `assets/styles.css`
+  difference, scale-to-touch) and theme-aware canvas helpers
 
 Their `projects.json` entries still drive the landing-page cards.
 

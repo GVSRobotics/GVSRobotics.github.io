@@ -1,292 +1,375 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>DCOL++: differentiable collision detection, explained | GVS Robotics</title>
-  <meta name="description" content="DCOL++ measures how close two shapes are with one smooth number, and computes exactly how that number changes as they move. An interactive introduction.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../assets/styles.css">
-  <style>:root{--accent:#6a4bd8;--accent-soft:#f0ecfc}</style>
-  <script defer src="../../assets/geom2d.js"></script>
-  <script defer src="../../assets/explainer.js"></script>
-  <script defer src="demo.js"></script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DCOL++ — Differentiable Collision Detection, Explained</title>
+<meta name="description" content="DCOL++ measures how close two convex shapes are with one smooth number, and computes exactly how that number changes as they move. An interactive introduction." />
+<link rel="stylesheet" href="../../assets/project-site.css" />
+<script defer src="../../assets/geom2d.js"></script>
+<script defer src="../../assets/project-site.js"></script>
+<script defer src="demo.js"></script>
 </head>
-<body class="project-page">
-  <header class="site-header project-nav">
-    <a class="brand" href="../../" aria-label="GVS Robotics home">
-      <img class="brand-logo" src="../../assets/logo-icon.png" alt="GVS Robotics logo">
-      <span>GVS Robotics</span>
-    </a>
-    <nav aria-label="Primary navigation">
-      <a href="../../#projects">Projects</a>
-      <a href="https://gvsrobotics.github.io/DCOLpp/">Playground ↗</a>
-      <a href="https://github.com/GVSRobotics/DCOLpp">GitHub ↗</a>
-    </nav>
-  </header>
+<body>
 
-  <main class="explainer">
-    <a class="back-link" href="../../#projects">← All projects</a>
+<nav class="nav">
+  <div class="wrap nav-row">
+    <a class="wordmark" href="#top">DCOL<em>++</em></a>
+    <div class="nav-links">
+      <a class="opt" href="#idea">The idea</a>
+      <a class="opt" href="#slopes">Slopes</a>
+      <a href="#playground">Playground</a>
+      <a class="opt" href="#shapes">Shapes</a>
+      <a class="opt" href="#quickstart">Quickstart</a>
+      <a class="opt" href="#cite">Cite</a>
+      <a href="https://github.com/GVSRobotics/DCOLpp">GitHub</a>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme">MODE</button>
+    </div>
+  </div>
+</nav>
 
-    <section class="ex-hero">
-      <p class="eyebrow">C++17 · Eigen · Differentiable contact</p>
-      <h1>DCOL++</h1>
-      <p class="project-kicker">Collision detection that tells an optimizer which way to move.</p>
-      <p class="project-summary">DCOL++ uses one smooth number to measure how close two shapes are. It also computes exactly how that number changes as the shapes move, with hand-derived formulas: no approximations and no guessing. That makes it a natural fit for motion planners, simulators, and learning systems that improve by following slopes.</p>
-      <div class="project-links">
-        <a class="button accent" href="https://gvsrobotics.github.io/DCOLpp/">Open the 3D playground ↗</a>
-        <a class="button primary" href="https://github.com/GVSRobotics/DCOLpp">GitHub repository ↗</a>
-        <a class="button secondary" href="#idea">Try the 2D demo ↓</a>
-      </div>
-      <p class="lineage">A fast C++ re-implementation and extension of <a href="https://github.com/kevin-tracy/DifferentiableCollisions.jl">DifferentiableCollisions.jl</a> (Tracy et al.), with ideas from our <a href="https://gvsrobotics.github.io/iDCOL/">iDCOL</a> project. MIT licensed.</p>
-    </section>
+<header class="hero" id="top">
+  <div class="wrap hero-intro">
+    <a class="crumb" href="../../">← GVS Robotics</a>
+    <span class="eyebrow">Differentiable collision detection</span>
+    <h1>Collision detection that tells an optimizer which way to move.</h1>
+    <p class="hero-thesis">
+      DCOL++ uses one smooth number to measure how close two convex shapes
+      are. It also computes exactly how that number changes as the shapes move,
+      with hand-derived formulas: no autodiff and no finite differences, just
+      exact slopes for planners, simulators, and learning systems.
+    </p>
+    <div class="cta-row">
+      <a class="btn" href="https://gvsrobotics.github.io/DCOLpp/">Open the 3D playground &rarr;</a>
+      <a class="btn quiet" href="#idea">Try the 2D demo</a>
+      <a class="btn quiet" href="#quickstart">Quickstart</a>
+      <a class="btn quiet" href="https://github.com/GVSRobotics/DCOLpp">View source</a>
+    </div>
+    <p class="hero-note">
+      A fast C++17 / Eigen re-implementation and extension of
+      <a href="https://github.com/kevin-tracy/DifferentiableCollisions.jl">DifferentiableCollisions.jl</a>
+      (Tracy, Howell &amp; Manchester), with ideas from <a href="https://gvsrobotics.github.io/iDCOL/">iDCOL</a>. MIT licensed.
+    </p>
+  </div>
+</header>
 
-    <nav class="toc" aria-label="On this page">
-      <a href="#why"><span>1</span>Why</a>
-      <a href="#idea"><span>2</span>The big idea</a>
-      <a href="#slopes"><span>3</span>Smooth slopes</a>
-      <a href="#playground"><span>4</span>3D playground</a>
-      <a href="#what"><span>5</span>What's inside</a>
-      <a href="#limits"><span>6</span>Limits</a>
-      <a href="#developers"><span>7</span>For developers</a>
-    </nav>
+<section id="why">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Why it matters</span>
+      <h2>"Not touching" isn't enough for an optimizer.</h2>
+      <p class="section-lede">
+        A yes-or-no collision check tells a robot <em>that</em> it hit
+        something, not <em>how to fix it</em>. Planners and learning systems
+        improve a motion step by step. At each step they need a smooth measure
+        of closeness and its <strong>slope</strong>: which small change makes
+        things better, and by how much.
+      </p>
+    </div>
+    <div class="hair-grid">
+      <div><span class="card-badge">Smooth</span><span class="card-title">One smooth measure</span><p class="card-text">DCOL++ returns a single number, α, that changes smoothly as shapes move, with no sudden jumps for an optimizer to trip over.</p></div>
+      <div><span class="card-badge">Exact</span><span class="card-title">Exact slopes</span><p class="card-text">It also returns how α, the contact point, and the contact direction change for any small rotation or shift, from exact formulas.</p></div>
+      <div><span class="card-badge">Fast</span><span class="card-title">Fast enough to loop</span><p class="card-text">A full query with derivatives takes a few millionths of a second per pair, so it fits inside simulators and optimization loops.</p></div>
+    </div>
+  </div>
+</section>
 
-    <section class="ex-section" id="why">
-      <span class="num">01</span>
-      <h2>"Not touching" isn't enough for an optimizer</h2>
-      <p class="lede">A yes-or-no collision check tells a robot <em>that</em> it hit something, but not <em>how to fix it</em>. Modern planners and learning systems improve a motion step by step. At every step they need a smooth measure of closeness and its <strong>slope</strong>: which small change makes things better, and by how much.</p>
-      <div class="why-grid">
-        <article><div class="icon" aria-hidden="true">📈</div><h3>A smooth measure</h3><p>DCOL++ returns a single number, α, that changes smoothly as shapes move. There are no sudden jumps for an optimizer to trip over.</p></article>
-        <article><div class="icon" aria-hidden="true">🧭</div><h3>Exact slopes</h3><p>It also returns how α, the contact point, and the contact direction change for any small rotation or shift. These come from exact formulas, not trial and error.</p></article>
-        <article><div class="icon" aria-hidden="true">⚡</div><h3>Fast enough to loop</h3><p>A full query with derivatives takes a few millionths of a second per pair, so it fits inside simulators and optimization loops.</p></article>
-      </div>
-    </section>
+<section id="idea">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">The idea · growth distance</span>
+      <h2>Grow or shrink both shapes until they just touch.</h2>
+      <p class="section-lede">
+        Scale both shapes by the same factor, each around its own center, until
+        they <strong>just touch</strong>. That factor is <strong>α</strong>
+        (alpha). It is the same idea behind iDCOL. Try to find it yourself.
+      </p>
+    </div>
 
-    <section class="ex-section" id="idea">
-      <span class="num">02</span>
-      <h2>The big idea: grow or shrink until they touch</h2>
-      <p class="lede">Imagine inflating or deflating both shapes by the same factor, each around its own center, until they <strong>just touch</strong>. That factor is <strong>α</strong> (alpha). Try to find it yourself with the slider.</p>
-
-      <div class="demo" id="demo-scale">
-        <div class="demo-top">
-          <span><b>Interactive</b> · find the scale at which the shapes just touch</span>
-          <span class="demo-hint">Drag the orange shape, or focus it and use <kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></span>
+    <div class="demo-card" id="demo-scale">
+      <div class="demo-grid">
+        <div class="canvas-row">
+          <div class="demo-canvas-wrap"><span class="pane-tag">scale both shapes</span><canvas tabindex="0" aria-label="Two shapes with scaled outlines. Drag the orange shape with the mouse or arrow keys." data-view="world"></canvas></div>
         </div>
-        <div class="demo-body">
-          <div class="demo-stage">
-            <div class="pane"><span class="pane-label">Scale both shapes</span><canvas tabindex="0" aria-label="Two shapes with scaled outlines. Drag the orange shape with the mouse or arrow keys." data-view="world"></canvas></div>
-          </div>
-          <div class="demo-side" aria-live="polite">
-            <div>
-              <div class="status" data-out="guessStatus"><i></i><span></span></div>
-              <p class="explain" data-out="guessText" style="min-height:0;margin-top:6px"></p>
-            </div>
-            <div data-out="answerBox">
-              <div class="big-number" data-out="alpha">α = ?<small>DCOL++'s answer</small></div>
-              <dl class="readouts" style="margin-top:14px">
-                <dt>Meaning</dt><dd data-out="meaning">—</dd>
-                <dt>Gap estimate</dt><dd data-out="gap">—</dd>
-              </dl>
-            </div>
-            <div class="legend">
-              <span><i style="background:#3a66f0"></i>Shape A</span>
-              <span><i style="background:#e08a2a"></i>Shape B (drag)</span>
-              <span><i class="dash" style="color:#5b6470"></i>Scaled by your guess</span>
-              <span><i style="background:#6a4bd8;height:1.5px"></i>Scaled by true α</span>
-              <span><i class="dot" style="background:#6a4bd8"></i>Witness point</span>
-            </div>
-          </div>
-        </div>
-        <div class="demo-controls">
-          <label class="ctl grow"><span class="ctl-row">Your guess: scale both by <output data-out="guess">1.00</output></span><input type="range" min="0.2" max="3" step="0.01" value="1.6" data-in="guess"></label>
-          <button class="btn solid" type="button" data-in="reveal">Show DCOL++'s answer</button>
-          <label class="ctl">Shape A<select data-in="shapeA"></select></label>
-          <label class="ctl">Shape B<select data-in="shapeB"></select></label>
-          <label class="ctl"><span class="ctl-row">Rotate B <output data-out="rot">0°</output></span><input type="range" min="-180" max="180" step="1" value="-25" data-in="rot"></label>
-        </div>
-      </div>
-      <p class="takeaway">One number covers every case. <strong>α &gt; 1</strong>: the shapes are apart, and must grow to meet. <strong>α = 1</strong>: they are exactly touching. <strong>α &lt; 1</strong>: they overlap, and must shrink to come apart. The point where the scaled shapes meet is the <em>witness point</em>, i.e. where the contact happens.</p>
-      <p class="note">Why scaling? Finding α is a <em>convex optimization problem</em> (technically a second-order cone program) of fixed, small size. It can be solved reliably in a few iterations, and its solution can be differentiated exactly.</p>
-    </section>
-
-    <section class="ex-section" id="slopes">
-      <span class="num">03</span>
-      <h2>Smooth slopes let a robot find its way</h2>
-      <p class="lede">Because α changes smoothly, its slope always points somewhere useful: the arrow shows which way to move B to increase α fastest. An optimizer follows such slopes to reach a goal, here making the shapes sit at a chosen α.</p>
-
-      <div class="demo" id="demo-opt">
-        <div class="demo-top">
-          <span><b>Interactive</b> · let an optimizer move B using only α and its slope</span>
-          <span class="demo-hint">Drag the orange shape anywhere, then press <b>Run optimizer</b></span>
-        </div>
-        <div class="demo-body">
-          <div class="demo-stage">
-            <div class="pane"><span class="pane-label">Follow the slope</span><canvas tabindex="0" aria-label="Shape B with an arrow showing the slope of alpha." data-view="world"></canvas></div>
-          </div>
-          <div class="demo-side" aria-live="polite">
-            <div class="big-number" data-out="alpha">α = 0.00<small>current value</small></div>
-            <dl class="readouts">
-              <dt>Target</dt><dd data-out="target">1.00</dd>
-              <dt>Slope strength</dt><dd data-out="slope">—</dd>
-              <dt>Optimizer steps</dt><dd data-out="steps">0</dd>
-            </dl>
-            <div class="plot"><canvas data-view="plot" aria-label="Plot of alpha as B slides left and right"></canvas></div>
-            <div class="legend">
-              <span><i style="background:#6a4bd8"></i>α as B slides left ↔ right</span>
-              <span><i class="dash" style="color:#1f9d6b"></i>Target</span>
-            </div>
-            <p class="explain" data-out="explain"></p>
-          </div>
-        </div>
-        <div class="demo-controls">
-          <label class="ctl grow"><span class="ctl-row">Target α <output data-out="targetOut">1.00</output></span><input type="range" min="0.7" max="2" step="0.05" value="1" data-in="target"></label>
-          <label class="ctl">Shape B<select data-in="shapeB"></select></label>
-          <div class="btns">
-            <button class="btn solid" type="button" data-in="run">▶ Run optimizer</button>
-            <button class="btn" type="button" data-in="reset">Reset</button>
-          </div>
-        </div>
-      </div>
-      <p class="takeaway">The optimizer only sees α and its slope, never the shapes. It usually reaches the target within <strong>a few steps</strong>. The plot shows why: α is a smooth curve, so slopes point the right way. In this toy demo the slope is measured numerically. DCOL++ computes the full set of slopes (for rotations too, and for the contact point and direction) <strong>analytically</strong>, straight from the solver's own equations.</p>
-    </section>
-
-    <section class="ex-section" id="playground">
-      <span class="num">04</span>
-      <h2>Use the real solver in 3D</h2>
-      <p class="lede">The playground runs the actual DCOL++ C++ code in your browser, compiled to WebAssembly. Pose two 3D shapes, solve, and watch the exact derivatives predict the contact as the pose wobbles.</p>
-      <div class="playground" data-playground="https://gvsrobotics.github.io/DCOLpp/" data-title="DCOL++ solver playground">
-        <div class="playground-cover has-image" style="background-image:url('https://gvsrobotics.github.io/DCOLpp/dcolpp-demo.gif')">
+        <div class="side" aria-live="polite">
           <div>
-            <h3>DCOL++ solver playground</h3>
-            <p>Eight 3D shapes, six-degree-of-freedom posing, the α-scaled overlay, and a live derivative check. Downloads about 4 MB.</p>
-            <div class="btns">
-              <button class="btn solid" type="button" data-load>Load the playground here</button>
-              <a class="btn" href="https://gvsrobotics.github.io/DCOLpp/" target="_blank" rel="noopener">Open full screen ↗</a>
-            </div>
+            <div class="status" data-out="guessStatus"><i></i><span></span></div>
+            <p class="explain" data-out="guessText" style="margin-top:8px"></p>
+          </div>
+          <div class="big" data-out="alpha">α = ?<small>DCOL++'s answer</small></div>
+          <dl class="readouts">
+            <dt>meaning</dt><dd data-out="meaning">—</dd>
+            <dt>gap estimate</dt><dd data-out="gap">—</dd>
+          </dl>
+          <div class="legend">
+            <span><i style="background:var(--field)"></i>A</span>
+            <span><i style="background:var(--contact)"></i>B, drag me</span>
+            <span><i class="dash" style="color:var(--fg-dim)"></i>scaled by your guess</span>
+            <span><i style="background:var(--pred)"></i>scaled by true α</span>
+            <span><i class="dot" style="background:var(--pred)"></i>witness point</span>
           </div>
         </div>
       </div>
+      <div class="controls">
+        <div><div class="demo-label"><span>your guess: scale both by</span><b data-out="guess">1.00</b></div><input type="range" min="0.2" max="3" step="0.01" value="1.6" data-in="guess" aria-label="Your guess for alpha" /></div>
+        <label class="field">Shape A<select data-in="shapeA"></select></label>
+        <label class="field">Shape B<select data-in="shapeB"></select></label>
+        <div><div class="demo-label"><span>rotate B</span><b data-out="rot">0°</b></div><input type="range" min="-180" max="180" step="1" value="-25" data-in="rot" aria-label="Rotate B" /></div>
+      </div>
+      <div class="cta-row" style="margin-top:14px"><button class="btn" type="button" data-in="reveal">Show DCOL++'s answer</button></div>
+      <p class="demo-caption">
+        <strong>Drag</strong> the orange shape, then move the slider until the
+        dashed outlines meet at a single point. The point where the scaled
+        shapes meet is the <strong>witness point</strong>, the location of the
+        contact.
+      </p>
+    </div>
+    <p class="punchline"><strong>α &gt; 1 apart · α = 1 touching · α &lt; 1 overlapping. One number covers every case.</strong></p>
+    <p class="footnote" style="text-align:center;margin-left:auto;margin-right:auto">
+      Finding α is a small convex optimization problem (a second-order cone
+      program) of fixed size. It solves reliably in a few iterations, and its
+      solution can be differentiated exactly.
+    </p>
+  </div>
+</section>
 
-      <div class="guide">
-        <div>
-          <h3>Things to try</h3>
-          <ol class="tries">
-            <li><b>Solve the default pair</b><span>Press <em>Solve</em>. The gray wireframe shows both shapes scaled by α until they touch, exactly like the dashed outlines in section 2.</span></li>
-            <li><b>Pull them apart and together</b><span>Drag the <em>t<sub>x</sub></em> slider. Watch α cross 1 as the shapes go from apart to overlapping.</span></li>
-            <li><b>Watch the derivative work</b><span>Press <em>▶ Perturb g &amp; watch</em>. The violet marker is predicted from the derivatives alone, and it rides on top of the re-solved contact.</span></li>
-            <li><b>Break it on purpose</b><span>Press <em>Degenerate pose</em> to line up flat faces or edges. The contact becomes a line or patch, and the <em>…_valid</em> flags warn that the point's derivative is no longer unique.</span></li>
-          </ol>
+<section id="slopes">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Why smoothness pays off</span>
+      <h2>Follow the slope, reach the goal.</h2>
+      <p class="section-lede">
+        Because α changes smoothly, its slope always points somewhere useful.
+        The arrow shows which way to move B to increase α fastest. An optimizer
+        that sees only α and its slope, never the shapes, can steer B to any
+        target α.
+      </p>
+    </div>
+
+    <div class="demo-card" id="demo-opt">
+      <div class="demo-grid">
+        <div class="canvas-row">
+          <div class="demo-canvas-wrap"><span class="pane-tag">follow the slope</span><canvas tabindex="0" aria-label="Shape B with an arrow showing the slope of alpha. Drag B anywhere." data-view="world"></canvas></div>
         </div>
-        <div>
-          <h3>Reading the panel</h3>
-          <dl class="glossary">
-            <div><dt>alpha</dt><dd>The scale-to-touch number. Above 1 apart, 1 touching, below 1 overlapping.</dd></div>
-            <div><dt>witness point(s)</dt><dd>Where the α-scaled shapes meet: the contact location.</dd></div>
-            <div><dt>body 1 / 2 witness</dt><dd>That contact point mapped back onto each real (unscaled) shape's surface.</dd></div>
-            <div><dt>gap (d_D)</dt><dd>A distance-like number from α: positive apart, negative overlapping.</dd></div>
-            <div><dt>normal</dt><dd>The contact direction: which way to push B to separate the shapes.</dd></div>
-            <div><dt>contact_manifold_dim</dt><dd>Contact shape: 0 = point, 1 = line (e.g. edge on face), 2 = face on face.</dd></div>
-            <div><dt>normal_cone_dim</dt><dd>Above 0 when the contact is on a sharp edge or corner, so the direction isn't unique.</dd></div>
-            <div><dt>…_jacobian_valid</dt><dd>Whether the derivative of the point or direction is trustworthy at this pose.</dd></div>
+        <div class="side" aria-live="polite">
+          <div class="big" data-out="alpha">α = 0.00<small>current value</small></div>
+          <dl class="readouts">
+            <dt>target</dt><dd data-out="target">1.00</dd>
+            <dt>slope strength</dt><dd data-out="slope">—</dd>
+            <dt>optimizer steps</dt><dd data-out="steps">0</dd>
           </dl>
+          <div class="plot"><canvas data-view="plot" aria-label="Alpha as B slides left and right"></canvas></div>
+          <div class="legend">
+            <span><i style="background:var(--pred)"></i>α as B slides ↔</span>
+            <span><i class="dash" style="color:var(--good)"></i>target</span>
+          </div>
+          <p class="explain" data-out="explain"></p>
         </div>
       </div>
-    </section>
-
-    <section class="ex-section" id="what">
-      <span class="num">05</span>
-      <h2>What's inside</h2>
-      <p class="lede">Every shape is convex (no dents or holes). Combine them to model more complex robots and objects.</p>
-      <ul class="chips" aria-label="Supported shapes">
-        <li>Sphere</li><li>Capsule</li><li>Cylinder</li><li>Cone</li><li class="new">Truncated cone ✦</li><li>Ellipsoid</li><li>Polytope (any convex solid)</li><li>Polygon (rounded, flat)</li><li class="new">Plane (ground) ✦</li>
-      </ul>
-      <p class="note">✦ new in DCOL++, not in the original Julia library.</p>
-
-      <div class="stats" style="margin-top:28px">
-        <div><strong>2–9 µs</strong><span>per shape pair, including derivatives</span></div>
-        <div><strong>2–3× faster</strong><span>than DifferentiableCollisions.jl on its shared benchmark</span></div>
-        <div><strong>~1 iteration</strong><span>to re-solve a slowly moving contact, using warm-starting</span></div>
-        <div><strong>144 tests</strong><span>every derivative checked against finite differences</span></div>
+      <div class="controls">
+        <div><div class="demo-label"><span>target α</span><b data-out="targetOut">1.00</b></div><input type="range" min="0.7" max="2" step="0.05" value="1" data-in="target" aria-label="Target alpha" /></div>
+        <label class="field">Shape B<select data-in="shapeB"></select></label>
+        <div class="cta-row">
+          <button class="btn" type="button" data-in="run">▶ Run optimizer</button>
+          <button class="btn quiet" type="button" data-in="reset">Reset</button>
+        </div>
       </div>
+      <p class="demo-caption">
+        <strong>Drag</strong> B anywhere, then press <strong>Run
+        optimizer</strong>. It usually reaches the target within a few steps.
+        In this toy demo the slope is measured numerically. DCOL++ computes
+        every slope analytically, including rotations and the contact point
+        and direction.
+      </p>
+    </div>
+    <p class="punchline"><strong>Smooth α, exact slopes: everything a gradient-based planner needs.</strong></p>
+  </div>
+</section>
 
-      <h3>Compared with COAL</h3>
-      <p class="prose">Our <a class="link-arrow" href="../coal/">COAL</a> fork measures the <strong>true geometric distance</strong> between almost any shapes, including meshes, height fields, and octrees. DCOL++ instead measures the <strong>scale factor α</strong> for a set of convex primitives. α is smooth and exactly differentiable to second order, which makes it especially convenient inside optimizers. Use COAL when you need the exact gap on complex geometry. Use DCOL++ when gradients matter most.</p>
-      <div class="feature-list" style="margin-top:28px">
-        <article><h3>Second-order derivatives</h3><p>Beyond first slopes, DCOL++ differentiates a second time. That is what makes the derivative of the contact direction exact.</p></article>
-        <article><h3>Contact patches</h3><p>Detects when contact is a line or a face rather than a point, and returns several contact points, each with its own derivatives.</p></article>
-        <article><h3>Broad-phase culling</h3><p>Optional bounding boxes and a bounding-volume tree quickly skip pairs that are far apart, so scenes with hundreds of bodies stay fast.</p></article>
+<section id="playground">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Live in your browser</span>
+      <h2>Play with the real DCOL++ solver.</h2>
+      <p class="section-lede">
+        This is the actual DCOL++ C++ code, compiled to WebAssembly. Pose two 3D
+        shapes in six degrees of freedom, solve, and watch the analytic
+        derivatives predict the contact as the pose wobbles.
+      </p>
+    </div>
+    <div class="playground" data-playground="https://gvsrobotics.github.io/DCOLpp/" data-title="DCOL++ solver playground">
+      <div class="playground-cover has-image" style="background-image:url('https://gvsrobotics.github.io/DCOLpp/dcolpp-demo.gif')">
+        <div>
+          <h3>DCOL++ solver playground</h3>
+          <p>Downloads about 4 MB. Runs entirely in your browser.</p>
+          <div class="cta-row">
+            <button class="btn" type="button" data-load>Load it here</button>
+            <a class="btn quiet" href="https://gvsrobotics.github.io/DCOLpp/" target="_blank" rel="noopener">Open full screen ↗</a>
+          </div>
+        </div>
       </div>
-    </section>
+    </div>
 
-    <section class="ex-section" id="limits">
-      <span class="num">06</span>
-      <h2>Know before you use it</h2>
-      <div class="caveats">
-        <article><h3>α is not a distance</h3><p>It's a scale factor. To get a distance-like number, use the returned <code>gap</code>.</p></article>
-        <article><h3>Sharp features have kinks</h3><p>At an exact edge or corner contact, the slope depends on which side you approach from. DCOL++ returns a valid one-sided slope and flags the case.</p></article>
-        <article><h3>Precision near touching</h3><p>The equations get numerically stiff as shapes touch. The contact-point slopes lose some digits, gracefully. α's own slope is unaffected.</p></article>
-        <article><h3>Research code</h3><p>Convex shapes only, and APIs may still change. Non-convex objects need to be split into convex pieces.</p></article>
+    <div class="guide">
+      <div>
+        <h3>Things to try</h3>
+        <ol class="tries">
+          <li><b>Solve the default pair</b>Press <em>Solve</em>. The gray wireframe is both shapes scaled by α until they touch, like the outlines in the 2D demo.</li>
+          <li><b>Pull them apart and together</b>Drag the <em>t<sub>x</sub></em> slider and watch α cross 1 as the shapes go from apart to overlapping.</li>
+          <li><b>Watch the derivative work</b>Press <em>▶ Perturb g &amp; watch</em>. The violet marker comes from the derivatives alone, and it rides on the re-solved contact.</li>
+          <li><b>Break it on purpose</b>Press <em>Degenerate pose</em>. The contact becomes a line or a patch, and the <em>…_valid</em> flags warn that the point's derivative is no longer unique.</li>
+        </ol>
       </div>
-    </section>
+      <div>
+        <h3>Reading the panel</h3>
+        <dl class="glossary">
+          <div><dt>alpha</dt><dd>The scale-to-touch number: above 1 apart, 1 touching, below 1 overlapping.</dd></div>
+          <div><dt>witness point(s)</dt><dd>Where the α-scaled shapes meet: the contact location.</dd></div>
+          <div><dt>body 1 / 2 witness</dt><dd>That point mapped back onto each real (unscaled) surface.</dd></div>
+          <div><dt>gap (d_D)</dt><dd>A distance-like number derived from α: positive apart, negative overlapping.</dd></div>
+          <div><dt>normal</dt><dd>The contact direction: which way to push B to separate the shapes.</dd></div>
+          <div><dt>contact_manifold_dim</dt><dd>0 = point, 1 = line (edge on face), 2 = face on face.</dd></div>
+          <div><dt>normal_cone_dim</dt><dd>Above 0 on a sharp edge or corner, where the direction isn't unique.</dd></div>
+          <div><dt>…_jacobian_valid</dt><dd>Whether the derivative of the point or direction can be trusted here.</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <section class="ex-section" id="developers">
-      <span class="num">07</span>
-      <h2>For developers</h2>
-      <p class="lede">Eigen 3.4 is the only dependency. Pull DCOL++ into a CMake project and link one target:</p>
-      <div class="codeblock"><pre><code>include(FetchContent)
+<section id="shapes">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Supported geometry</span>
+      <h2>Eight convex primitives, plus the ground.</h2>
+      <p class="section-lede">Every shape is convex (no dents or holes). Combine several to model a robot or an object. <span style="color:var(--contact)">Orange</span> = new in DCOL++.</p>
+    </div>
+    <ul class="chips" aria-label="Supported shapes">
+      <li>Sphere</li><li>Capsule</li><li>Cylinder</li><li>Cone</li><li class="new">Truncated cone</li><li>Ellipsoid</li><li>Polytope · any convex solid</li><li>Polygon · rounded, flat</li><li class="new">Plane · ground</li>
+    </ul>
+    <div class="hair-grid" style="margin-top:28px">
+      <div><span class="card-badge">Speed</span><span class="stat-value">2–9 µs</span><p class="card-text">per shape pair, derivatives included</p></div>
+      <div><span class="card-badge">vs Julia original</span><span class="stat-value">2–3× faster</span><p class="card-text">on DifferentiableCollisions.jl's shared benchmark</p></div>
+      <div><span class="card-badge">Warm start</span><span class="stat-value">~1 iteration</span><p class="card-text">to re-solve a slowly moving contact</p></div>
+      <div><span class="card-badge">Verified</span><span class="stat-value">144 tests</span><p class="card-text">every derivative checked against finite differences</p></div>
+    </div>
+    <div class="hair-grid" style="margin-top:28px">
+      <div><span class="card-badge">Beyond the original</span><span class="card-title">Second-order derivatives</span><p class="card-text">DCOL++ differentiates a second time, which makes the derivative of the contact direction exact.</p></div>
+      <div><span class="card-badge">Beyond the original</span><span class="card-title">Contact patches</span><p class="card-text">Detects line and face contacts and returns several contact points, each with its own derivatives.</p></div>
+      <div><span class="card-badge">Beyond the original</span><span class="card-title">Broad-phase culling</span><p class="card-text">Optional bounding boxes and a bounding-volume tree skip far-apart pairs, so scenes with hundreds of bodies stay fast.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="limitations">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Know before you use it</span>
+      <h2>What the scale-to-touch measure costs you.</h2>
+    </div>
+    <div class="limit-grid">
+      <div class="limit-card"><h3>α is not a distance</h3><p>It's a scale factor. For a distance-like number, use the returned <code>gap</code>. For the true Euclidean distance on complex geometry, see <a href="../coal/">COAL</a>.</p></div>
+      <div class="limit-card"><h3>Sharp features have kinks</h3><p>At an exact edge or corner contact, the slope depends on which side you approach from. DCOL++ returns a valid one-sided slope and flags the case.</p></div>
+      <div class="limit-card"><h3>Precision near touching</h3><p>The equations get numerically stiff as shapes touch. The contact-point slopes lose some digits gracefully. α's own slope is unaffected.</p></div>
+      <div class="limit-card"><h3>Convex shapes only</h3><p>Non-convex objects need to be split into convex pieces. This is research code, so the API may still change.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="quickstart">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Quickstart</span>
+      <h2>One dependency, one target, one call.</h2>
+      <p class="section-lede">Eigen 3.4 is the only dependency. Pull DCOL++ into a CMake project and link <code>dcolpp_socp</code>.</p>
+    </div>
+    <div class="code-panel">
+      <div class="code-panel-head"><span>CMakeLists.txt</span><button class="copy-btn" data-copy="#codeCmake" type="button">copy</button></div>
+<pre id="codeCmake">include(FetchContent)
 FetchContent_Declare(dcolpp
   GIT_REPOSITORY https://github.com/GVSRobotics/DCOLpp.git
   GIT_TAG        main)
 FetchContent_MakeAvailable(dcolpp)
 
-target_link_libraries(your_target PRIVATE dcolpp_socp)</code></pre></div>
-      <h3>One query: a cube and a cone</h3>
-      <div class="codeblock"><pre><code>#include "dcolpp/socp/contact.hpp"
-using namespace dcolpp::socp;
+target_link_libraries(your_target PRIVATE dcolpp_socp)</pre>
+    </div>
+    <div class="code-panel">
+      <div class="code-panel-head"><span>main.cpp</span><button class="copy-btn" data-copy="#codeMain" type="button">copy</button></div>
+<pre id="codeMain"><span class="tok-kw">#include</span> "dcolpp/socp/contact.hpp"
+<span class="tok-kw">using namespace</span> dcolpp::socp;
 
-Eigen::Matrix&lt;double, 6, 3&gt; A;                        // unit cube as six half-spaces
+Eigen::Matrix&lt;double, 6, 3&gt; A;                     <span class="tok-com">// unit cube as six half-spaces</span>
 A &lt;&lt; 1,0,0, -1,0,0, 0,1,0, 0,-1,0, 0,0,1, 0,0,-1;
 Polytope&lt;6&gt; cube(A, Eigen::Matrix&lt;double, 6, 1&gt;::Constant(0.5));
-Cone cone(1.5, 0.4363);                                // height 1.5, half-angle ~25°
+Cone cone(1.5, 0.4363);                             <span class="tok-com">// height 1.5, half-angle ~25°</span>
 
-Eigen::Matrix4d g = Eigen::Matrix4d::Identity();       // pose of the cone relative to the cube
+Eigen::Matrix4d g = Eigen::Matrix4d::Identity();    <span class="tok-com">// pose of the cone relative to the cube</span>
 g(2, 3) = 1.2;
 
-auto r = proximityContactJacobian(cube, cone, g);
-// r.alpha            &lt;1 hit, =1 touch, &gt;1 apart
-// r.normal, r.gap    contact direction and signed gap
-// r.jacobian         d[witness; alpha] / d(pose), 4x6
-// r.normal_jacobian  d(normal) / d(pose), 3x6</code></pre></div>
-      <h3>Cite</h3>
-      <p class="prose">DCOL++ builds on two papers. Please cite them if it helps your work:</p>
-      <div class="codeblock"><pre><code>@article{tracy2023differentiable,
+<span class="tok-kw">auto</span> r = proximityContactJacobian(cube, cone, g);
+<span class="tok-com">// r.alpha            &lt;1 hit, =1 touch, &gt;1 apart</span>
+<span class="tok-com">// r.normal, r.gap    contact direction and signed gap</span>
+<span class="tok-com">// r.jacobian         d[witness; alpha] / d(pose), 4x6</span>
+<span class="tok-com">// r.normal_jacobian  d(normal) / d(pose), 3x6</span></pre>
+    </div>
+    <div class="link-row">
+      <a class="btn quiet" href="https://github.com/GVSRobotics/DCOLpp#how-it-works">How it works</a>
+      <a class="btn quiet" href="https://github.com/GVSRobotics/DCOLpp/blob/main/examples/basic_contact.cpp">Full example</a>
+      <a class="btn quiet" href="https://github.com/GVSRobotics/DCOLpp#broadphase">Broadphase</a>
+    </div>
+  </div>
+</section>
+
+<section id="cite">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Citation</span>
+      <h2>If this is useful in your work.</h2>
+      <p class="section-lede">DCOL++ builds on these two papers.</p>
+    </div>
+    <div class="code-panel">
+      <div class="code-panel-head"><span>bibtex</span><button class="copy-btn" data-copy="#citeBlock" type="button">copy</button></div>
+<pre id="citeBlock">@article{tracy2023differentiable,
   title   = {Differentiable Collision Detection for a Set of Convex Primitives},
   author  = {Tracy, Kevin and Howell, Taylor A. and Manchester, Zachary},
   journal = {IEEE International Conference on Robotics and Automation (ICRA)},
   year    = {2023}
 }
+
 @article{mathew2026idcol,
   title   = {Collision Detection with Analytical Derivatives of Contact Kinematics},
   author  = {Mathew, Anup Teejo and Peringal, Anees and Caradonna, Daniele
              and Boyer, Frederic and Renda, Federico},
   journal = {IEEE Robotics and Automation Letters (RA-L)},
   year    = {2026}
-}</code></pre></div>
-      <div class="ex-links">
-        <a class="button primary" href="https://github.com/GVSRobotics/DCOLpp">GitHub repository ↗</a>
-        <a class="button secondary" href="https://github.com/GVSRobotics/DCOLpp#how-it-works">How it works ↗</a>
-        <a class="button secondary" href="https://github.com/GVSRobotics/DCOLpp/blob/main/examples/basic_contact.cpp">Full example ↗</a>
-        <a class="button secondary" href="https://gvsrobotics.github.io/iDCOL/">Sister project: iDCOL ↗</a>
-      </div>
-    </section>
-  </main>
+}</pre>
+    </div>
+  </div>
+</section>
 
-  <footer>
-    <div><strong>GVS Robotics</strong><p>Open-source tools for the next generation of robotic systems.</p></div>
-    <div class="footer-links"><a href="../../">Home</a><a href="https://github.com/GVSRobotics">GitHub</a><a href="mailto:gvsrobotics@gmail.com">Email</a></div>
-    <p class="copyright">© <span data-year></span> GVS Robotics</p>
-  </footer>
+<section id="family">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Related</span>
+      <h2>Three libraries, one question.</h2>
+      <p class="section-lede">GVS Robotics works on contact from three angles. Pick the one that fits your shapes and your need for derivatives.</p>
+    </div>
+    <nav class="family" aria-label="Related projects">
+      <a href="https://gvsrobotics.github.io/iDCOL/"><span class="card-badge">Smooth implicit shapes</span><span class="fam-name"><em>i</em>DCOL</span><span class="card-text">Contact and exact derivatives for strictly convex implicit shapes, via one fixed-size Newton solve.</span></a>
+      <a class="here" href="#top" aria-current="page"><span class="card-badge">Convex primitives · you are here</span><span class="fam-name">DCOL<em>++</em></span><span class="card-text">A smooth "scale-to-touch" measure with exact first and second derivatives, built for optimizers.</span></a>
+      <a href="../coal/"><span class="card-badge">Almost any geometry</span><span class="fam-name">COAL</span><span class="card-text">GVS fork of Coal: true distance and contact patches for primitives, meshes, and more, plus contact derivatives.</span></a>
+    </nav>
+  </div>
+</section>
+
+<footer class="wrap">
+  <span>DCOL++ — <a href="../../">GVSRobotics</a></span>
+  <span>
+    <a href="https://github.com/GVSRobotics/DCOLpp">github.com/GVSRobotics/DCOLpp</a>
+    &nbsp;&middot;&nbsp;
+    <a href="https://gvsrobotics.github.io/DCOLpp/">playground</a>
+  </span>
+</footer>
+
 </body>
 </html>

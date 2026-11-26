@@ -3,12 +3,16 @@
   'use strict';
   const { SHAPES, place, scaleToTouch, pointInConvex, View, draggable, fmt, add, sub, mul, len } = G2;
 
-  const COL = {
-    a: '#3a66f0', aFill: 'rgba(58,102,240,.12)',
-    b: '#e08a2a', bFill: 'rgba(224,138,42,.14)',
-    ink: '#171a1f', muted: '#5b6470', violet: '#6a4bd8',
-    apart: '#1f9d6b', touch: '#d99a00', hit: '#d4473b',
-  };
+  // Colors follow the page theme (iDCOL palette); refreshed at the start of every draw.
+  const COL = {};
+  function syncColors() {
+    const T = G2.theme();
+    Object.assign(COL, {
+      a: T.field, aFill: T.field + '2e', b: T.contact, bFill: T.contact + '2e',
+      ink: T.fg, muted: T.fgDim, grid: T.border, font: T.font, mono: T.mono,
+      apart: T.good, touch: T.warn, hit: T.bad, violet: T.pred, mFill: T.pred + '1f',
+    });
+  }
   const deg = r => Math.round(r * 180 / Math.PI);
   const rad = d => d * Math.PI / 180;
   const fillSelect = (sel, value) => { sel.innerHTML = Object.entries(SHAPES).map(([k, s]) => `<option value="${k}">${s.label}</option>`).join(''); sel.value = value; };
@@ -33,6 +37,7 @@
     const render = rafRenderer(draw);
 
     function draw() {
+      syncColors();
       const LA = SHAPES[st.a].pts, LB = SHAPES[st.b].pts;
       const { alpha, witness } = scaleToTouch(LA, st.poseA, LB, st.poseB);
       const cA = [st.poseA.x, st.poseA.y], cB = [st.poseB.x, st.poseB.y];
@@ -108,6 +113,7 @@
     $('[data-in=shapeB]').addEventListener('change', e => { st.b = e.target.value; render(); });
     $('[data-in=rot]').addEventListener('input', e => { st.poseB.th = rad(+e.target.value); render(); });
     window.addEventListener('resize', () => { view.resize(); render(); });
+    window.addEventListener('themechange', render);
     draw();
   })();
 
@@ -139,8 +145,8 @@
       const X = x => pad.l + ((x - xs[0]) / 5) * (W - pad.l - pad.r);
       const Y = v => pad.t + (1 - (v - lo) / (hi - lo)) * (H - pad.t - pad.b);
       ctx.clearRect(0, 0, W, H);
-      ctx.font = '11px "DM Sans", sans-serif'; ctx.fillStyle = '#5b6470'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-      ctx.strokeStyle = '#e2e0d8'; ctx.lineWidth = 1;
+      ctx.font = '11px ' + COL.mono; ctx.fillStyle = COL.muted; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+      ctx.strokeStyle = COL.grid; ctx.lineWidth = 1;
       [0, 1, 2, 3].filter(v => v <= hi).forEach(v => { ctx.beginPath(); ctx.moveTo(pad.l, Y(v)); ctx.lineTo(W - pad.r, Y(v)); ctx.stroke(); ctx.fillText(v.toFixed(0), pad.l - 5, Y(v)); });
       ctx.strokeStyle = COL.apart; ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.moveTo(pad.l, Y(st.target)); ctx.lineTo(W - pad.r, Y(st.target)); ctx.stroke(); ctx.setLineDash([]);
       ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText('← B slides left · right →', (W + pad.l) / 2, H - 15);
@@ -150,6 +156,7 @@
     }
 
     function draw() {
+      syncColors();
       const LA = SHAPES[st.a].pts, LB = SHAPES[st.b].pts;
       const { alpha } = scaleToTouch(LA, st.poseA, LB, st.poseB);
       const g = gradAt(st.poseB.x, st.poseB.y), gl = len(g);
@@ -218,6 +225,7 @@
     $('[data-in=target]').addEventListener('input', e => { st.target = +e.target.value; st.path = []; st.history = []; render(); });
     $('[data-in=shapeB]').addEventListener('change', e => { st.b = e.target.value; st.path = []; st.history = []; render(); });
     window.addEventListener('resize', () => { view.resize(); render(); });
+    window.addEventListener('themechange', render);
     draw();
   })();
 })();

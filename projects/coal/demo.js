@@ -3,13 +3,16 @@
   'use strict';
   const { SHAPES, place, signedDistance, minkowskiDiff, aabb, aabbOverlap, pointInConvex, View, draggable, fmt, dot, add, mul, sub, len } = G2;
 
-  const COL = {
-    a: '#3a66f0', aFill: 'rgba(58,102,240,.13)',
-    b: '#e08a2a', bFill: 'rgba(224,138,42,.15)',
-    ink: '#171a1f', muted: '#8a929c',
-    apart: '#1f9d6b', touch: '#d99a00', hit: '#d4473b',
-    violet: '#6a4bd8', mFill: 'rgba(106,75,216,.10)',
-  };
+  // Colors follow the page theme (iDCOL palette); refreshed at the start of every draw.
+  const COL = {};
+  function syncColors() {
+    const T = G2.theme();
+    Object.assign(COL, {
+      a: T.field, aFill: T.field + '2e', b: T.contact, bFill: T.contact + '2e',
+      ink: T.fg, muted: T.fgDim, grid: T.border, font: T.font, mono: T.mono,
+      apart: T.good, touch: T.warn, hit: T.bad, violet: T.pred, mFill: T.pred + '1f',
+    });
+  }
   const TOUCH_TOL = 0.02;
   const deg = r => Math.round(r * 180 / Math.PI);
   const rad = d => d * Math.PI / 180;
@@ -45,6 +48,7 @@
     const render = rafRenderer(draw);
 
     function draw() {
+      syncColors();
       const A = place(SHAPES[st.a].pts, st.poseA), B = place(SHAPES[st.b].pts, st.poseB);
       const r = signedDistance(A, B), s = stateOf(r.dist);
       const bxA = aabb(A), bxB = aabb(B), boxHit = aabbOverlap(bxA, bxB);
@@ -57,8 +61,8 @@
       }
       world.poly(A, { fill: COL.aFill, stroke: COL.a });
       world.poly(B, { fill: COL.bFill, stroke: COL.b });
-      world.label([st.poseA.x, st.poseA.y], 'A', { color: COL.a, dx: 0, dy: 0, align: 'center', font: '700 15px "DM Sans", sans-serif' });
-      world.label([st.poseB.x, st.poseB.y], 'B', { color: COL.b, dx: 0, dy: 0, align: 'center', font: '700 15px "DM Sans", sans-serif' });
+      world.label([st.poseA.x, st.poseA.y], 'A', { color: COL.a, dx: 0, dy: 0, align: 'center', font: '600 15px ' + COL.font });
+      world.label([st.poseB.x, st.poseB.y], 'B', { color: COL.b, dx: 0, dy: 0, align: 'center', font: '600 15px ' + COL.font });
       if (s === 'apart') {
         world.line(r.pA, r.pB, { stroke: COL.apart, width: 2, dash: [6, 4] });
         world.label(mul(add(r.pA, r.pB), 0.5), fmt(r.dist), { color: COL.apart, dx: 0, dy: -16, align: 'center' });
@@ -76,7 +80,7 @@
       const mc = G2.centroid(M);
       mink.center = mul(mc, 0.5);
       mink.clear();
-      mink.poly(M, { fill: inside ? 'rgba(212,71,59,.12)' : COL.mFill, stroke: inside ? COL.hit : COL.violet });
+      mink.poly(M, { fill: inside ? COL.hit + '1f' : COL.mFill, stroke: inside ? COL.hit : COL.violet });
       mink.label(M.reduce((best, p) => (p[1] > best[1] ? p : best), M[0]), 'A − B', { color: inside ? COL.hit : COL.violet, dy: -12, align: 'center', dx: 0 });
       mink.line([0, 0], c, { stroke: s === 'apart' ? COL.apart : s === 'hit' ? COL.hit : COL.touch, width: 2, dash: [6, 4] });
       mink.dot(c, { r: 4, fill: COL.violet });
@@ -127,6 +131,7 @@
     }));
 
     window.addEventListener('resize', () => { world.resize(); mink.resize(); render(); });
+    window.addEventListener('themechange', render);
     draw();
   })();
 
@@ -159,20 +164,21 @@
       const X = t => pad.l + ((t + 1) / 2) * (W - pad.l - pad.r);
       const Y = v => pad.t + (1 - (v - lo) / (hi - lo)) * (H - pad.t - pad.b);
       ctx.clearRect(0, 0, W, H);
-      ctx.font = '11px "DM Sans", sans-serif'; ctx.fillStyle = '#5b6470'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-      ctx.strokeStyle = '#e2e0d8'; ctx.lineWidth = 1;
+      ctx.font = '11px ' + COL.mono; ctx.fillStyle = COL.muted; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+      ctx.strokeStyle = COL.grid; ctx.lineWidth = 1;
       [lo, (lo + hi) / 2, hi].forEach(v => { ctx.beginPath(); ctx.moveTo(pad.l, Y(v)); ctx.lineTo(W - pad.r, Y(v)); ctx.stroke(); ctx.fillText(fmt(v, 1), pad.l - 5, Y(v)); });
-      if (lo < 0 && hi > 0) { ctx.strokeStyle = 'rgba(212,71,59,.5)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(pad.l, Y(0)); ctx.lineTo(W - pad.r, Y(0)); ctx.stroke(); ctx.setLineDash([]); }
+      if (lo < 0 && hi > 0) { ctx.strokeStyle = COL.hit; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(pad.l, Y(0)); ctx.lineTo(W - pad.r, Y(0)); ctx.stroke(); ctx.setLineDash([]); }
       ctx.textAlign = 'center'; ctx.textBaseline = 'top';
       ctx.fillText('nudge size →', (W + pad.l) / 2, H - 15);
       const path = (vals, color, w) => { ctx.strokeStyle = color; ctx.lineWidth = w; ctx.beginPath(); vals.forEach((v, i) => (i ? ctx.lineTo(X(xs[i]), Y(v)) : ctx.moveTo(X(xs[i]), Y(v)))); ctx.stroke(); };
       path(pred, COL.violet, 2); path(act, COL.ink, 2);
-      ctx.strokeStyle = 'rgba(23,26,31,.35)'; ctx.beginPath(); ctx.moveTo(X(st.amt), pad.t); ctx.lineTo(X(st.amt), H - pad.b); ctx.stroke();
+      ctx.strokeStyle = COL.muted; ctx.beginPath(); ctx.moveTo(X(st.amt), pad.t); ctx.lineTo(X(st.amt), H - pad.b); ctx.stroke();
       const actNow = signedDistance(A, shapeBAt(mul(u, st.amt))).dist;
       [[d0 + dot(n, u) * st.amt, COL.violet], [actNow, COL.ink]].forEach(([v, c]) => { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(X(st.amt), Y(v), 4, 0, Math.PI * 2); ctx.fill(); });
     }
 
     function draw() {
+      syncColors();
       const A = shapeA(), B0 = shapeBAt([0, 0]);
       const u = [Math.cos(st.dir), Math.sin(st.dir)], delta = mul(u, st.amt);
       const B1 = shapeBAt(delta);
@@ -183,7 +189,7 @@
       world.clear();
       world.poly(A, { fill: COL.aFill, stroke: COL.a });
       world.poly(B0, { fill: COL.bFill, stroke: COL.b });
-      world.poly(B1, { fill: 'rgba(224,138,42,.06)', stroke: COL.b, width: 1.5, dash: [6, 4] });
+      world.poly(B1, { fill: COL.b + '10', stroke: COL.b, width: 1.5, dash: [6, 4] });
       world.arrow([st.poseB.x, st.poseB.y], [st.poseB.x + delta[0], st.poseB.y + delta[1]], { stroke: COL.violet, width: 2.5 });
       if (r0.dist > TOUCH_TOL) world.line(r0.pA, r0.pB, { stroke: COL.apart, width: 2, dash: [6, 4] });
       world.arrow(r0.pA, add(r0.pA, mul(r0.normal, 0.7)), { stroke: COL.ink, width: 1.5, head: 7 });
@@ -225,6 +231,7 @@
     });
 
     window.addEventListener('resize', () => { world.resize(); render(); });
+    window.addEventListener('themechange', render);
     draw();
   })();
 })();

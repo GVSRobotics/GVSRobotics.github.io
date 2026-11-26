@@ -1,268 +1,358 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>COAL: fast collision detection, explained | GVS Robotics</title>
-  <meta name="description" content="COAL answers the question every robot asks thousands of times a second: are these two objects touching, and if not, how far apart are they? An interactive introduction to the GVS Robotics fork of Coal.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../assets/styles.css">
-  <style>:root{--accent:#b3402a;--accent-soft:#f8ece8}</style>
-  <script defer src="../../assets/geom2d.js"></script>
-  <script defer src="../../assets/explainer.js"></script>
-  <script defer src="demo.js"></script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>COAL (GVS Robotics fork) — Collision Detection, Explained</title>
+<meta name="description" content="COAL answers the question every robot asks thousands of times a second: are these two objects touching, and if not, how far apart are they? An interactive introduction to the GVS Robotics fork of Coal." />
+<link rel="stylesheet" href="../../assets/project-site.css" />
+<script defer src="../../assets/geom2d.js"></script>
+<script defer src="../../assets/project-site.js"></script>
+<script defer src="demo.js"></script>
 </head>
-<body class="project-page">
-  <header class="site-header project-nav">
-    <a class="brand" href="../../" aria-label="GVS Robotics home">
-      <img class="brand-logo" src="../../assets/logo-icon.png" alt="GVS Robotics logo">
-      <span>GVS Robotics</span>
-    </a>
-    <nav aria-label="Primary navigation">
-      <a href="../../#projects">Projects</a>
-      <a href="https://gvsrobotics.github.io/coal/">Playground ↗</a>
-      <a href="https://github.com/GVSRobotics/coal">GitHub ↗</a>
-    </nav>
-  </header>
+<body>
 
-  <main class="explainer">
-    <a class="back-link" href="../../#projects">← All projects</a>
+<nav class="nav">
+  <div class="wrap nav-row">
+    <a class="wordmark" href="#top">COAL<small>GVS fork</small></a>
+    <div class="nav-links">
+      <a class="opt" href="#try">Try it</a>
+      <a class="opt" href="#how">How it works</a>
+      <a class="opt" href="#derivatives">Derivatives</a>
+      <a href="#playground">Playground</a>
+      <a class="opt" href="#quickstart">Quickstart</a>
+      <a href="https://github.com/GVSRobotics/coal">GitHub</a>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme">MODE</button>
+    </div>
+  </div>
+</nav>
 
-    <section class="ex-hero">
-      <p class="eyebrow">C++ · Python · Collision detection</p>
-      <h1>COAL</h1>
-      <p class="project-kicker">Are these two objects touching? If not, how far apart are they?</p>
-      <p class="project-summary">Robots ask this thousands of times a second: before an arm moves, when a foot lands, at every step of a simulation. COAL answers quickly and precisely for almost any pair of 3D shapes. Our fork also reports how that answer changes when an object moves, which motion planners and learning systems need.</p>
-      <div class="project-links">
-        <a class="button accent" href="https://gvsrobotics.github.io/coal/">Open the 3D playground ↗</a>
-        <a class="button primary" href="https://github.com/GVSRobotics/coal">GitHub repository ↗</a>
-        <a class="button secondary" href="#try">Try the 2D demo ↓</a>
-      </div>
-      <p class="lineage">A fork of <a href="https://github.com/coal-library/coal">Coal</a>, the open-source collision library behind Pinocchio and other robotics frameworks. This fork adds contact derivatives, a <code>TruncatedCone</code> shape, and a browser playground.</p>
-    </section>
+<header class="hero" id="top">
+  <div class="wrap hero-intro">
+    <a class="crumb" href="../../">← GVS Robotics</a>
+    <span class="eyebrow">Collision detection · GVS Robotics fork of Coal</span>
+    <h1>Are these two objects touching? If not, how far apart are they?</h1>
+    <p class="hero-thesis">
+      Robots ask this thousands of times a second: before an arm moves, when a
+      foot lands, at every step of a simulation. COAL answers quickly and
+      precisely for almost any pair of 3D shapes. This fork also reports
+      <em>how that answer changes</em> when an object moves, which motion
+      planners and learning systems need.
+    </p>
+    <div class="cta-row">
+      <a class="btn" href="https://gvsrobotics.github.io/coal/">Open the 3D playground &rarr;</a>
+      <a class="btn quiet" href="#try">Try the 2D demo</a>
+      <a class="btn quiet" href="#quickstart">Quickstart</a>
+      <a class="btn quiet" href="https://github.com/GVSRobotics/coal">View source</a>
+    </div>
+    <p class="hero-note">
+      COAL is not originally a GVS Robotics library. <a href="https://github.com/coal-library/coal">Coal</a>
+      is developed mainly at Inria and LAAS-CNRS, and is used by Pinocchio and other robotics frameworks.
+      This fork keeps its names and interfaces and adds contact derivatives, a
+      <code>TruncatedCone</code> shape, and a browser playground.
+    </p>
+  </div>
+</header>
 
-    <nav class="toc" aria-label="On this page">
-      <a href="#why"><span>1</span>Why it matters</a>
-      <a href="#try"><span>2</span>Try it</a>
-      <a href="#how"><span>3</span>How it works</a>
-      <a href="#nudge"><span>4</span>Derivatives</a>
-      <a href="#playground"><span>5</span>3D playground</a>
-      <a href="#fork"><span>6</span>This fork</a>
-      <a href="#developers"><span>7</span>For developers</a>
-    </nav>
+<section id="why">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Why it matters</span>
+      <h2>Every robot keeps asking the same question.</h2>
+      <p class="section-lede">
+        A robot only knows the shapes of its own body and of the world around
+        it. Software has to work out when those shapes meet. Every query comes
+        down to two answers: <strong>are they touching</strong>, and
+        <strong>how close or how deep</strong>?
+      </p>
+    </div>
+    <div class="hair-grid">
+      <div><span class="card-badge">Planning</span><span class="card-title">Moving safely</span><p class="card-text">Before it moves, an arm checks every candidate path against shelves, tables, and people. A planner can test millions of poses.</p></div>
+      <div><span class="card-badge">Simulation</span><span class="card-title">Simulating contact</span><p class="card-text">A physics engine needs to know where a foot touches the ground and how deeply, so it can compute the contact force.</p></div>
+      <div><span class="card-badge">Optimization</span><span class="card-title">Learning which way to move</span><p class="card-text">Optimizers also need to know which way to move to make or avoid contact. That is the derivative of the answer, covered further down.</p></div>
+    </div>
+  </div>
+</section>
 
-    <section class="ex-section" id="why">
-      <span class="num">01</span>
-      <h2>Why robots need collision detection</h2>
-      <p class="lede">A robot only knows the shapes of its own body and of the world around it. Software has to work out when those shapes meet. Every query comes down to two answers: <strong>are they touching</strong>, and <strong>how close or how deep</strong>?</p>
-      <div class="why-grid">
-        <article><div class="icon" aria-hidden="true">🦾</div><h3>Planning safe motion</h3><p>Before moving, an arm checks every candidate path against shelves, tables, and people. A typical planner tests millions of poses.</p></article>
-        <article><div class="icon" aria-hidden="true">🦶</div><h3>Simulating contact</h3><p>A physics engine must know where a foot touches the ground and how deeply. It uses that to compute the contact force.</p></article>
-        <article><div class="icon" aria-hidden="true">🧠</div><h3>Learning and optimizing</h3><p>Optimizers also need to know which way to move to make contact or avoid it. That is the derivative of the answer (section 4).</p></article>
-      </div>
-    </section>
+<section id="try">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Try it</span>
+      <h2>One signed number answers both questions.</h2>
+      <p class="section-lede">
+        The left panel shows two shapes. The right panel shows how COAL sees
+        the same situation (explained in the next section). Drag the orange
+        shape toward the teal one.
+      </p>
+    </div>
 
-    <section class="ex-section" id="try">
-      <span class="num">02</span>
-      <h2>Try it: drag the orange shape</h2>
-      <p class="lede">The panel on the left shows what you see: two shapes. The panel on the right shows how COAL sees the same situation (section 3). Drag the orange shape toward the blue one.</p>
-
-      <div class="demo" id="demo-collide">
-        <div class="demo-top">
-          <span><b>Interactive</b> · a 2D version of the same questions COAL answers in 3D</span>
-          <span class="demo-hint">Drag the orange shape, or focus it and use <kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></span>
+    <div class="demo-card" id="demo-collide">
+      <div class="demo-grid">
+        <div class="canvas-row two">
+          <div class="demo-canvas-wrap"><span class="pane-tag">what you see</span><canvas tabindex="0" aria-label="Two shapes. Drag the orange shape with the mouse or arrow keys." data-view="world"></canvas></div>
+          <div class="demo-canvas-wrap"><span class="pane-tag">what COAL sees · A − B</span><canvas aria-label="The combined shape A minus B, and the origin." data-view="mink"></canvas></div>
         </div>
-        <div class="demo-body">
-          <div class="demo-stage two">
-            <div class="pane"><span class="pane-label">What you see</span><canvas tabindex="0" aria-label="Two shapes. Drag the orange shape with the mouse or arrow keys." data-view="world"></canvas></div>
-            <div class="pane"><span class="pane-label">What COAL sees</span><canvas aria-label="The combined shape A minus B, and the origin." data-view="mink"></canvas></div>
-          </div>
-          <div class="demo-side" aria-live="polite">
-            <div class="status" data-out="status"><i></i><span>Separated</span></div>
-            <div class="big-number" data-out="number">0.00<small>units apart</small></div>
-            <p class="explain" data-out="explain"></p>
-            <dl class="readouts">
-              <dt>Signed distance</dt><dd data-out="signed">—</dd>
-              <dt>Quick box check</dt><dd data-out="aabb">—</dd>
-              <dt>Contact normal</dt><dd data-out="normal">—</dd>
-            </dl>
-            <div class="legend">
-              <span><i style="background:#3a66f0"></i>Shape A (fixed)</span>
-              <span><i style="background:#e08a2a"></i>Shape B (drag)</span>
-              <span><i class="dot" style="background:#171a1f"></i>Witness points</span>
-            </div>
-          </div>
-        </div>
-        <div class="demo-controls">
-          <label class="ctl">Shape A<select data-in="shapeA"></select></label>
-          <label class="ctl">Shape B<select data-in="shapeB"></select></label>
-          <label class="ctl grow"><span class="ctl-row">Rotate B <output data-out="rot">0°</output></span><input type="range" min="-180" max="180" step="1" value="20" data-in="rot"></label>
-          <label class="check"><input type="checkbox" data-in="boxes"> Show bounding boxes</label>
-          <div class="btns">
-            <button class="btn" type="button" data-preset="apart">Apart</button>
-            <button class="btn" type="button" data-preset="touch">Touching</button>
-            <button class="btn" type="button" data-preset="hit">Overlapping</button>
-          </div>
-        </div>
-      </div>
-      <p class="takeaway"><strong>Signed distance</strong> combines both answers in one number. Positive means the shapes are that far apart. Negative means they overlap by that much. The two black <em>witness points</em> show where the gap or overlap is measured, and the arrow between them is the <em>contact normal</em>.</p>
-    </section>
-
-    <section class="ex-section" id="how">
-      <span class="num">03</span>
-      <h2>How COAL answers so fast</h2>
-      <p class="lede">Checking every surface point of one shape against every point of the other would be far too slow. COAL narrows the work down in stages.</p>
-      <div class="feature-list">
-        <article>
-          <h3>Step 1 · Quick box check</h3>
-          <p>Each object gets a simple bounding box around it. If two boxes don't overlap, the objects can't touch, so most pairs are ruled out almost instantly. Turn on <b>Show bounding boxes</b> in the demo to watch this.</p>
-        </article>
-        <article>
-          <h3>Step 2 · Combine the two shapes</h3>
-          <p>For pairs that pass, COAL subtracts every point of B from every point of A. The result is a single combined shape, shown on the right. <b>The objects touch exactly when that shape contains the origin</b> (the ⊕ mark), and the gap between them equals the distance from the origin to that shape.</p>
-        </article>
-        <article>
-          <h3>Step 3 · Search efficiently</h3>
-          <p>COAL never builds the combined shape in full. Two classic algorithms, <b>GJK</b> for distance and <b>EPA</b> for penetration depth, probe only a handful of its points to find the closest one to the origin. Coal's accelerated GJK is 5 to 15 times faster than widely used alternatives.<sup><a href="#fn-bench">1</a></sup></p>
-        </article>
-      </div>
-      <p class="takeaway">Watch the right-hand panel as you drag. When the orange shape enters the blue one, the origin ends up <strong>inside</strong> the combined shape. The dashed line from the origin to the nearest edge has the same length as the gap or overlap in the left-hand panel.</p>
-    </section>
-
-    <section class="ex-section" id="nudge">
-      <span class="num">04</span>
-      <h2>What if the shape moves a little?</h2>
-      <p class="lede">A planner trying to move an arm away from an obstacle needs more than the distance. It needs to know <strong>how the distance will change</strong> for each small move it could make. Mathematicians call this the <em>derivative</em>. Computing it reliably is the main addition in this fork.</p>
-
-      <div class="demo" id="demo-nudge">
-        <div class="demo-top">
-          <span><b>Interactive</b> · predict the new distance from the derivative, then compare with the real answer</span>
-          <span class="demo-hint">Drag the orange shape to set a starting pose</span>
-        </div>
-        <div class="demo-body">
-          <div class="demo-stage">
-            <div class="pane"><span class="pane-label">Nudge test</span><canvas tabindex="0" aria-label="Shape B and its nudged copy." data-view="world"></canvas></div>
-          </div>
-          <div class="demo-side" aria-live="polite">
-            <dl class="readouts">
-              <dt>Distance now</dt><dd data-out="d0">—</dd>
-              <dt>Predicted after nudge</dt><dd data-out="pred" style="color:#6a4bd8">—</dd>
-              <dt>Actual after nudge</dt><dd data-out="actual">—</dd>
-              <dt>Prediction error</dt><dd data-out="err">—</dd>
-            </dl>
-            <div class="plot"><canvas data-view="plot" aria-label="Plot of predicted and actual distance against nudge size"></canvas></div>
-            <div class="legend">
-              <span><i style="background:#171a1f"></i>Actual distance</span>
-              <span><i style="background:#6a4bd8"></i>Prediction (straight line)</span>
-              <span><i class="dash" style="color:#e08a2a"></i>Nudged B</span>
-              <span><i style="background:#171a1f"></i>Normal</span>
-            </div>
-            <p class="explain" data-out="explain"></p>
-          </div>
-        </div>
-        <div class="demo-controls">
-          <label class="ctl grow"><span class="ctl-row">Nudge size <output data-out="amt">0.00</output></span><input type="range" min="-1" max="1" step="0.01" value="0.35" data-in="amt"></label>
-          <label class="ctl grow"><span class="ctl-row">Nudge direction <output data-out="dir">0°</output></span><input type="range" min="-180" max="180" step="1" value="150" data-in="dir"></label>
-          <label class="ctl">Shape B<select data-in="shapeB"></select></label>
-          <button class="btn solid" type="button" data-in="animate">▶ Sweep nudge</button>
-        </div>
-      </div>
-      <p class="takeaway">For small nudges the straight-line prediction (violet) matches the real distance almost exactly. For larger nudges, or when a different corner becomes the closest point, the two drift apart. The real playground runs the same check in 3D, including rotations. It also flags tricky contacts, such as two flat faces resting on each other, where no single derivative exists.</p>
-    </section>
-
-    <section class="ex-section" id="playground">
-      <span class="num">05</span>
-      <h2>Use the real solver in 3D</h2>
-      <p class="lede">The playground runs COAL itself in your browser, compiled to WebAssembly. Nothing to install. Load it here or open it full screen.</p>
-      <div class="playground" data-playground="https://gvsrobotics.github.io/coal/" data-title="COAL contact playground">
-        <div class="playground-cover has-image" style="background-image:url('playground-preview.jpg')">
-          <div>
-            <h3>COAL contact playground</h3>
-            <p>Pick two 3D shapes, pose them with sliders, and inspect the contact points, normals, and the GJK/EPA internals. Downloads about 2 MB.</p>
-            <div class="btns">
-              <button class="btn solid" type="button" data-load>Load the playground here</button>
-              <a class="btn" href="https://gvsrobotics.github.io/coal/" target="_blank" rel="noopener">Open full screen ↗</a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="guide">
-        <div>
-          <h3>Things to try</h3>
-          <ol class="tries">
-            <li><b>Start with an example</b><span>Choose <em>Ellipsoids · separated</em>, then <em>Ellipsoids · penetrating</em>. Watch <em>Gap / −depth</em> change sign, as in the 2D demo.</span></li>
-            <li><b>Flat on flat</b><span>Choose <em>Boxes · parallel faces</em>. The contact is now a whole patch, so COAL returns several contact points instead of one.</span></li>
-            <li><b>Move it yourself</b><span>Drag the <em>Body B pose</em> sliders, or press <em>Random pose</em> and then <em>Touching</em> to slide B until it just meets A.</span></li>
-            <li><b>Test the derivative</b><span>Press <em>▶ Animate ±h</em>. The hollow ◇ prediction should sit on the solid ● fresh solve, just like the violet line in section 4.</span></li>
-          </ol>
-        </div>
-        <div>
-          <h3>Reading the panel</h3>
-          <dl class="glossary">
-            <div><dt>Shape A / B</dt><dd>A stays fixed at the center. B is the one you move.</dd></div>
-            <div><dt>Collision</dt><dd>Yes or no: are they touching?</dd></div>
-            <div><dt>Gap / −depth</dt><dd>The signed distance. Positive when apart, negative when overlapping.</dd></div>
-            <div><dt>Witness A / B</dt><dd>The pair of points, one on each shape, that are closest (or deepest).</dd></div>
-            <div><dt>Normal A → B</dt><dd>The direction from A to B at the contact, i.e. the direction to push B to separate them.</dd></div>
-            <div><dt>Contact manifold</dt><dd>All contact points when shapes meet along an edge or face, not just at one point.</dd></div>
-            <div><dt>GJK simplex · EPA face</dt><dd>The few points of the combined shape (section 3) that the search used to reach its answer.</dd></div>
-            <div><dt>Prediction error</dt><dd>How far the derivative's prediction is from a fresh solve. Small is good.</dd></div>
+        <div class="side" aria-live="polite">
+          <div class="status" data-out="status"><i></i><span>Separated</span></div>
+          <div class="big" data-out="number">0.00<small>units apart</small></div>
+          <p class="explain" data-out="explain"></p>
+          <dl class="readouts">
+            <dt>signed distance</dt><dd data-out="signed">—</dd>
+            <dt>quick box check</dt><dd data-out="aabb">—</dd>
+            <dt>contact normal</dt><dd data-out="normal">—</dd>
           </dl>
+          <div class="legend">
+            <span><i style="background:var(--field)"></i>A, fixed</span>
+            <span><i style="background:var(--contact)"></i>B, drag me</span>
+            <span><i class="dot" style="background:var(--fg)"></i>witness points</span>
+          </div>
         </div>
       </div>
-    </section>
-
-    <section class="ex-section" id="fork">
-      <span class="num">06</span>
-      <h2>What this fork adds</h2>
-      <p class="lede">Upstream Coal is a mature library used across robotics. We keep its names and interfaces (<code>coal::</code>, <code>import coal</code>) and add three things.</p>
-      <div class="feature-list">
-        <article><h3>Contact derivatives</h3><p>For any contact, how the witness points, normal, and signed distance change under a small rigid motion. Two methods are available: exact piecewise geometry, or randomized smoothing for a softer estimate.</p></article>
-        <article><h3>Truncated cone</h3><p>A new primitive shape: a cone with its tip cut off, with different top and bottom radii. Supported by collision, distance, contact patches, serialization, and both Python bindings.</p></article>
-        <article><h3>Browser playground</h3><p>The interactive 3D page above. It runs COAL's real solvers via WebAssembly, so you can explore contacts and check derivatives without installing anything.</p></article>
+      <div class="controls">
+        <label class="field">Shape A<select data-in="shapeA"></select></label>
+        <label class="field">Shape B<select data-in="shapeB"></select></label>
+        <div><div class="demo-label"><span>rotate B</span><b data-out="rot">0°</b></div><input type="range" min="-180" max="180" step="1" value="20" data-in="rot" aria-label="Rotate B" /></div>
+        <label class="check"><input type="checkbox" data-in="boxes" /> show bounding boxes</label>
       </div>
-      <h3>Built on a widely used library</h3>
-      <p class="prose">Coal grew out of the Flexible Collision Library (FCL) and was renamed from HPP-FCL in 2024. Upstream Coal powers <a class="link-arrow" href="https://github.com/stack-of-tasks/pinocchio">Pinocchio</a>, <a class="link-arrow" href="https://github.com/loco-3d/crocoddyl">Crocoddyl</a>, the <a class="link-arrow" href="https://humanoid-path-planner.github.io/hpp-doc/">Humanoid Path Planner</a>, and the <a class="link-arrow" href="https://github.com/Simple-Robotics/Simple">Simple</a> simulator. It supports boxes, spheres, capsules, cylinders, cones, ellipsoids, planes, convex meshes, height fields, and octrees.</p>
-      <p class="note" id="fn-bench">1. Benchmarks are from the upstream Coal project and compare Coal with Bullet, FCL, and libccd; see the <a class="link-arrow" href="https://github.com/coal-library/coal#a-high-performance-library">upstream README</a>. If you use Coal in research, please <a class="link-arrow" href="https://raw.githubusercontent.com/coal-library/coal/devel/CITATION.bib">cite it</a>.</p>
-    </section>
+      <div class="cta-row" style="margin-top:14px">
+        <button class="btn quiet small" type="button" data-preset="apart">Apart</button>
+        <button class="btn quiet small" type="button" data-preset="touch">Touching</button>
+        <button class="btn quiet small" type="button" data-preset="hit">Overlapping</button>
+      </div>
+      <p class="demo-caption">
+        <strong>Drag</strong> the orange shape, or click it and use the arrow
+        keys. The two dots are the <strong>witness points</strong>, where the
+        gap or overlap is measured. The arrow is the <strong>contact
+        normal</strong>, the direction from A to B.
+      </p>
+    </div>
+    <p class="punchline"><strong>Positive means that far apart. Negative means overlapping by that much.</strong></p>
+  </div>
+</section>
 
-    <section class="ex-section" id="developers">
-      <span class="num">07</span>
-      <h2>For developers</h2>
-      <p class="lede">Build this fork from source with <a class="link-arrow" href="https://pixi.sh/latest/#installation">Pixi</a>. The <code>test</code> task installs dependencies, builds, and runs the test suite.</p>
-      <div class="codeblock"><pre><code>git clone --recurse-submodules --branch devel https://github.com/GVSRobotics/coal.git
+<section id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">How it works</span>
+      <h2>Turn two shapes into one, then look for the origin.</h2>
+      <p class="section-lede">
+        Checking every surface point of one shape against every point of the
+        other would be far too slow. COAL narrows the work down in stages.
+      </p>
+    </div>
+    <div class="hair-grid">
+      <div><span class="card-badge">Step 01</span><span class="card-title">Quick box check</span><p class="card-text">Each object gets a simple bounding box. If two boxes don't overlap, the objects can't touch, so most pairs are ruled out almost instantly. Tick <em>show bounding boxes</em> in the demo to watch this.</p></div>
+      <div><span class="card-badge">Step 02</span><span class="card-title">Combine the two shapes</span><p class="card-text">For pairs that pass, subtract every point of B from every point of A. <strong style="color:var(--fg)">The objects touch exactly when that combined shape contains the origin</strong>, and the gap equals the origin's distance to it.</p></div>
+      <div><span class="card-badge">Step 03</span><span class="card-title">Search efficiently</span><p class="card-text">COAL never builds the combined shape in full. GJK (for distance) and EPA (for penetration depth) probe just a few of its points to find the closest one to the origin. Coal's accelerated GJK is 5 to 15 times faster than widely used alternatives.<sup><a href="#fn-bench">1</a></sup></p></div>
+    </div>
+    <p class="punchline"><strong>Watch the right-hand panel: when the shapes overlap, the origin ends up inside A − B.</strong></p>
+  </div>
+</section>
+
+<section id="derivatives">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">What this fork adds</span>
+      <h2>How does the answer change when something moves?</h2>
+      <p class="section-lede">
+        A planner steering an arm away from an obstacle needs more than the
+        distance. It needs to know <strong>how the distance will change</strong>
+        for each small move it could make, which is the <em>derivative</em>.
+        Computing it reliably is this fork's main addition. Predict the new
+        distance from the derivative, then compare with the true answer.
+      </p>
+    </div>
+
+    <div class="demo-card" id="demo-nudge">
+      <div class="demo-grid">
+        <div class="canvas-row">
+          <div class="demo-canvas-wrap"><span class="pane-tag">nudge test</span><canvas tabindex="0" aria-label="Shape B and its nudged copy. Drag B to set the starting pose." data-view="world"></canvas></div>
+        </div>
+        <div class="side" aria-live="polite">
+          <dl class="readouts">
+            <dt>distance now</dt><dd data-out="d0">—</dd>
+            <dt>predicted after nudge</dt><dd data-out="pred" style="color:var(--pred)">—</dd>
+            <dt>actual after nudge</dt><dd data-out="actual">—</dd>
+            <dt>prediction error</dt><dd data-out="err">—</dd>
+          </dl>
+          <div class="plot"><canvas data-view="plot" aria-label="Predicted and actual distance against nudge size"></canvas></div>
+          <div class="legend">
+            <span><i style="background:var(--fg)"></i>actual distance</span>
+            <span><i style="background:var(--pred)"></i>prediction</span>
+            <span><i class="dash" style="color:var(--contact)"></i>nudged B</span>
+          </div>
+          <p class="explain" data-out="explain"></p>
+        </div>
+      </div>
+      <div class="controls">
+        <div><div class="demo-label"><span>nudge size</span><b data-out="amt">0.00</b></div><input type="range" min="-1" max="1" step="0.01" value="0.35" data-in="amt" aria-label="Nudge size" /></div>
+        <div><div class="demo-label"><span>nudge direction</span><b data-out="dir">0°</b></div><input type="range" min="-180" max="180" step="1" value="150" data-in="dir" aria-label="Nudge direction" /></div>
+        <label class="field">Shape B<select data-in="shapeB"></select></label>
+        <div class="cta-row"><button class="btn" type="button" data-in="animate">▶ Sweep nudge</button></div>
+      </div>
+      <p class="demo-caption">
+        <strong>Drag</strong> the solid orange shape to set the starting pose.
+        The dashed copy is where the nudge takes it. For small nudges the
+        straight-line prediction is almost exact. It drifts for large nudges, or
+        when a different corner becomes the closest point.
+      </p>
+    </div>
+    <p class="punchline"><strong>The playground runs the same check in 3D, rotations included.</strong></p>
+  </div>
+</section>
+
+<section id="playground">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Live in your browser</span>
+      <h2>Play with the real COAL solver.</h2>
+      <p class="section-lede">
+        This is COAL itself, compiled to WebAssembly and running in this page.
+        Pick two 3D shapes, pose them, and inspect contact points, normals, and
+        the GJK/EPA internals. Nothing to install.
+      </p>
+    </div>
+    <div class="playground" data-playground="https://gvsrobotics.github.io/coal/" data-title="COAL contact playground">
+      <div class="playground-cover has-image" style="background-image:url('playground-preview.jpg')">
+        <div>
+          <h3>COAL contact playground</h3>
+          <p>Downloads about 2 MB. Runs entirely in your browser.</p>
+          <div class="cta-row">
+            <button class="btn" type="button" data-load>Load it here</button>
+            <a class="btn quiet" href="https://gvsrobotics.github.io/coal/" target="_blank" rel="noopener">Open full screen ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="guide">
+      <div>
+        <h3>Things to try</h3>
+        <ol class="tries">
+          <li><b>Start with an example</b>Choose <em>Ellipsoids · separated</em>, then <em>Ellipsoids · penetrating</em>. Watch <em>Gap / −depth</em> change sign, as in the 2D demo.</li>
+          <li><b>Flat on flat</b>Choose <em>Boxes · parallel faces</em>. The contact is now a whole patch, so COAL returns several contact points instead of one.</li>
+          <li><b>Move it yourself</b>Drag the <em>Body B pose</em> sliders, or press <em>Random pose</em> and then <em>Touching</em> to slide B until it just meets A.</li>
+          <li><b>Test the derivative</b>Press <em>▶ Animate ±h</em>. The hollow ◇ prediction should sit on the solid ● fresh solve, just like the violet line above.</li>
+        </ol>
+      </div>
+      <div>
+        <h3>Reading the panel</h3>
+        <dl class="glossary">
+          <div><dt>Shape A / B</dt><dd>A stays fixed at the center. B is the one you move.</dd></div>
+          <div><dt>Collision</dt><dd>Yes or no: are they touching?</dd></div>
+          <div><dt>Gap / −depth</dt><dd>The signed distance: positive when apart, negative when overlapping.</dd></div>
+          <div><dt>Witness A / B</dt><dd>The closest (or deepest) pair of points, one on each shape.</dd></div>
+          <div><dt>Normal A → B</dt><dd>The contact direction: which way to push B to separate them.</dd></div>
+          <div><dt>Contact manifold</dt><dd>All contact points when shapes meet along an edge or a face.</dd></div>
+          <div><dt>GJK simplex · EPA face</dt><dd>The few points of A − B the search used to reach its answer.</dd></div>
+          <div><dt>Prediction error</dt><dd>How far the derivative's prediction is from a fresh solve. Small is good.</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="fork">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">This fork</span>
+      <h2>Upstream Coal, plus three additions.</h2>
+      <p class="section-lede">
+        Upstream Coal grew out of the Flexible Collision Library (FCL) and was
+        renamed from HPP-FCL in 2024. It powers Pinocchio, Crocoddyl, the
+        Humanoid Path Planner, and the Simple simulator. It supports boxes,
+        spheres, capsules, cylinders, cones, ellipsoids, planes, convex meshes,
+        height fields, and octrees. This fork keeps the <code>coal::</code> and
+        <code>import coal</code> interfaces and adds:
+      </p>
+    </div>
+    <div class="hair-grid">
+      <div><span class="card-badge">New</span><span class="card-title">Contact derivatives</span><p class="card-text">For any contact: how the witness points, normal, and signed distance change under a small rigid motion. Choose exact piecewise geometry, or randomized smoothing for a softer estimate.</p></div>
+      <div><span class="card-badge">New</span><span class="card-title">Truncated cone</span><p class="card-text">A cone with its tip cut off and independent top and bottom radii. Supported by collision, distance, contact patches, serialization, and both Python bindings.</p></div>
+      <div><span class="card-badge">New</span><span class="card-title">Browser playground</span><p class="card-text">The interactive 3D page above. It runs COAL's real solvers via WebAssembly, so anyone can explore contacts and check derivatives.</p></div>
+    </div>
+    <p class="footnote" id="fn-bench">1. Benchmarks are from the upstream Coal project and compare Coal with Bullet, FCL, and libccd. See the <a href="https://github.com/coal-library/coal#a-high-performance-library">upstream README</a>.</p>
+  </div>
+</section>
+
+<section id="quickstart">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Quickstart</span>
+      <h2>Build the fork, then query a contact and its derivative.</h2>
+      <p class="section-lede">Build from source with <a href="https://pixi.sh/latest/#installation">Pixi</a>. The <code>test</code> task installs dependencies, builds, and runs the test suite.</p>
+    </div>
+    <div class="code-panel">
+      <div class="code-panel-head"><span>shell</span><button class="copy-btn" data-copy="#codeBuild" type="button">copy</button></div>
+<pre id="codeBuild">git clone --recurse-submodules --branch devel https://github.com/GVSRobotics/coal.git
 cd coal
 pixi run -e all test
 pixi run -e all cmake --install build
-pixi run -e all python -c "import coal; print(coal.TruncatedCone)"</code></pre></div>
-      <h3>Query a contact and its derivative</h3>
-      <div class="codeblock"><pre><code>#include &lt;coal/contact_derivatives.h&gt;
+pixi run -e all python -c "import coal; print(coal.TruncatedCone)"</pre>
+    </div>
+    <div class="code-panel">
+      <div class="code-panel-head"><span>main.cpp</span><button class="copy-btn" data-copy="#codeMain" type="button">copy</button></div>
+<pre id="codeMain"><span class="tok-kw">#include</span> &lt;coal/contact_derivatives.h&gt;
 
 coal::Ellipsoid a(1.0, 0.7, 0.5), b(0.8, 0.6, 0.4);
 coal::Transform3s T_AB(coal::Matrix3s::Identity(), coal::Vec3s(2.2, 0.1, 0.2));
 
-auto result = coal::derivatives::query(a, b, T_AB);
-if (result.available &amp;&amp; result.exact) {
-  Eigen::Matrix&lt;coal::Scalar, 6, 1&gt; xi;            // small motion of B: [rotation; translation]
+<span class="tok-kw">auto</span> result = coal::derivatives::query(a, b, T_AB);
+<span class="tok-kw">if</span> (result.available &amp;&amp; result.exact) {
+  Eigen::Matrix&lt;coal::Scalar, 6, 1&gt; xi;      <span class="tok-com">// small motion of B: [rotation; translation]</span>
   xi &lt;&lt; 0, 0, 0.001, 0.002, 0, 0;
   coal::Scalar predicted_d = result.distance + (result.distance_jacobian * xi)(0);
-}</code></pre></div>
-      <div class="ex-links">
-        <a class="button primary" href="https://github.com/GVSRobotics/coal">GitHub repository ↗</a>
-        <a class="button secondary" href="https://github.com/GVSRobotics/coal/blob/devel/doc/contact_derivatives.md">Derivatives API guide ↗</a>
-        <a class="button secondary" href="https://github.com/GVSRobotics/coal/blob/devel/output/pdf/contact_derivatives_math.pdf">The math (PDF) ↗</a>
-        <a class="button secondary" href="https://github.com/GVSRobotics/coal/blob/devel/visual/wasm/README.md">Playground build notes ↗</a>
-      </div>
-    </section>
-  </main>
+}</pre>
+    </div>
+    <div class="link-row">
+      <a class="btn quiet" href="https://github.com/GVSRobotics/coal/blob/devel/doc/contact_derivatives.md">Derivatives API guide</a>
+      <a class="btn quiet" href="https://github.com/GVSRobotics/coal/blob/devel/output/pdf/contact_derivatives_math.pdf">The math (PDF)</a>
+      <a class="btn quiet" href="https://github.com/GVSRobotics/coal/blob/devel/visual/wasm/README.md">Playground build notes</a>
+    </div>
+  </div>
+</section>
 
-  <footer>
-    <div><strong>GVS Robotics</strong><p>Open-source tools for the next generation of robotic systems.</p></div>
-    <div class="footer-links"><a href="../../">Home</a><a href="https://github.com/GVSRobotics">GitHub</a><a href="mailto:gvsrobotics@gmail.com">Email</a></div>
-    <p class="copyright">© <span data-year></span> GVS Robotics</p>
-  </footer>
+<section id="cite">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Citation</span>
+      <h2>If this is useful in your work, cite upstream Coal.</h2>
+    </div>
+    <div class="code-panel">
+      <div class="code-panel-head"><span>bibtex</span><button class="copy-btn" data-copy="#citeBlock" type="button">copy</button></div>
+<pre id="citeBlock">@misc{coalweb,
+   author = {Jia Pan and Sachin Chitta and Dinesh Manocha and Florent Lamiraux and Joseph Mirabel and Justin Carpentier and Louis Montaut and others},
+   title = {Coal: an extension of the Flexible Collision Library},
+   howpublished = {https://github.com/coal-library/coal},
+   year = {2015--2024}
+}</pre>
+    </div>
+  </div>
+</section>
+
+<section id="family">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Related</span>
+      <h2>Three libraries, one question.</h2>
+      <p class="section-lede">GVS Robotics works on contact from three angles. Pick the one that fits your shapes and your need for derivatives.</p>
+    </div>
+    <nav class="family" aria-label="Related projects">
+      <a href="https://gvsrobotics.github.io/iDCOL/"><span class="card-badge">Smooth implicit shapes</span><span class="fam-name"><em>i</em>DCOL</span><span class="card-text">Contact and exact derivatives for strictly convex implicit shapes, via one fixed-size Newton solve.</span></a>
+      <a href="../dcolpp/"><span class="card-badge">Convex primitives</span><span class="fam-name">DCOL<em>++</em></span><span class="card-text">A smooth "scale-to-touch" measure with exact first and second derivatives, built for optimizers.</span></a>
+      <a class="here" href="#top" aria-current="page"><span class="card-badge">Almost any geometry · you are here</span><span class="fam-name">COAL</span><span class="card-text">True distance and contact patches for primitives, meshes, and more, plus contact derivatives.</span></a>
+    </nav>
+  </div>
+</section>
+
+<footer class="wrap">
+  <span>COAL, GVS Robotics fork · <a href="../../">GVSRobotics</a></span>
+  <span>
+    <a href="https://github.com/GVSRobotics/coal">github.com/GVSRobotics/coal</a>
+    &nbsp;&middot;&nbsp;
+    <a href="https://github.com/coal-library/coal">upstream: coal-library/coal</a>
+  </span>
+</footer>
+
 </body>
 </html>

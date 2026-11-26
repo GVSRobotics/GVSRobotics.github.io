@@ -177,6 +177,21 @@
     return { alpha, witness };
   }
 
+  // ---------- theme (colors come from the page's CSS variables) ----------
+  let themeCache = null;
+  function theme() {
+    if (themeCache) return themeCache;
+    const cs = getComputedStyle(document.documentElement), v = (n, d) => (cs.getPropertyValue(n).trim() || d);
+    themeCache = {
+      fg: v('--fg', '#e7ebe9'), fgDim: v('--fg-dim', '#a7b1ae'), halo: v('--bg-raised-2', '#1c242b'),
+      border: v('--border', '#2a333a'), contact: v('--contact', '#d9662b'), field: v('--field', '#3e9c97'),
+      good: v('--good', '#4fb286'), warn: v('--warn', '#e0a83a'), bad: v('--bad', '#e5604a'), pred: v('--pred', '#a58cf0'),
+      grid: v('--grid', '#ffffff0d'), font: v('--font-body', 'sans-serif'), mono: v('--font-mono', 'monospace'),
+    };
+    return themeCache;
+  }
+  window.addEventListener('themechange', () => { themeCache = null; });
+
   // ---------- canvas view ----------
   /* A view maps world units to CSS pixels on a HiDPI-aware canvas.
    * opts.span is the world height visible; opts.center is the world point at the middle. */
@@ -199,19 +214,20 @@
   View.prototype.toWorld = function (x, y) { return [this.center[0] + (x - this.w / 2) / this.k, this.center[1] - (y - this.h / 2) / this.k]; };
   View.prototype.clear = function () {
     const c = this.ctx; c.clearRect(0, 0, this.w, this.h);
-    const step = 0.5, x0 = this.toWorld(0, 0)[0], x1 = this.toWorld(this.w, 0)[0];
+    const step = 0.5, T = theme(), x0 = this.toWorld(0, 0)[0], x1 = this.toWorld(this.w, 0)[0];
     const y1 = this.toWorld(0, 0)[1], y0 = this.toWorld(0, this.h)[1];
     c.lineWidth = 1;
     for (let x = Math.ceil(x0 / step) * step; x <= x1; x += step) {
       const px = Math.round(this.toPx([x, 0])[0]) + 0.5;
-      c.strokeStyle = Math.abs(x % 1) < 1e-6 ? 'rgba(23,26,31,.07)' : 'rgba(23,26,31,.035)';
+      c.globalAlpha = Math.abs(x % 1) < 1e-6 ? 1 : 0.5; c.strokeStyle = T.grid;
       c.beginPath(); c.moveTo(px, 0); c.lineTo(px, this.h); c.stroke();
     }
     for (let y = Math.ceil(y0 / step) * step; y <= y1; y += step) {
       const py = Math.round(this.toPx([0, y])[1]) + 0.5;
-      c.strokeStyle = Math.abs(y % 1) < 1e-6 ? 'rgba(23,26,31,.07)' : 'rgba(23,26,31,.035)';
+      c.globalAlpha = Math.abs(y % 1) < 1e-6 ? 1 : 0.5; c.strokeStyle = T.grid;
       c.beginPath(); c.moveTo(0, py); c.lineTo(this.w, py); c.stroke();
     }
+    c.globalAlpha = 1;
   };
   View.prototype.poly = function (pts, { fill, stroke, width = 2, dash } = {}) {
     const c = this.ctx; if (!pts.length) return;
@@ -221,12 +237,12 @@
     if (fill) { c.fillStyle = fill; c.fill(); }
     if (stroke) { c.setLineDash(dash || []); c.strokeStyle = stroke; c.lineWidth = width; c.stroke(); c.setLineDash([]); }
   };
-  View.prototype.line = function (a, b, { stroke = '#171a1f', width = 2, dash } = {}) {
+  View.prototype.line = function (a, b, { stroke = theme().fg, width = 2, dash } = {}) {
     const c = this.ctx, [x0, y0] = this.toPx(a), [x1, y1] = this.toPx(b);
     c.setLineDash(dash || []); c.strokeStyle = stroke; c.lineWidth = width;
     c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke(); c.setLineDash([]);
   };
-  View.prototype.arrow = function (a, b, { stroke = '#171a1f', width = 2, head = 9, dash } = {}) {
+  View.prototype.arrow = function (a, b, { stroke = theme().fg, width = 2, head = 9, dash } = {}) {
     const [x0, y0] = this.toPx(a), [x1, y1] = this.toPx(b), c = this.ctx;
     const L = Math.hypot(x1 - x0, y1 - y0); if (L < 2) return;
     const ux = (x1 - x0) / L, uy = (y1 - y0) / L, h = Math.min(head, L * 0.6);
@@ -235,20 +251,20 @@
     c.beginPath(); c.moveTo(x1, y1); c.lineTo(x1 - ux * h - uy * h * 0.5, y1 - uy * h + ux * h * 0.5);
     c.lineTo(x1 - ux * h + uy * h * 0.5, y1 - uy * h - ux * h * 0.5); c.closePath(); c.fill();
   };
-  View.prototype.dot = function (p, { r = 4.5, fill = '#171a1f', stroke = '#fff' } = {}) {
+  View.prototype.dot = function (p, { r = 4.5, fill = theme().fg, stroke = theme().halo } = {}) {
     const c = this.ctx, [x, y] = this.toPx(p);
     c.beginPath(); c.arc(x, y, r, 0, TAU); c.fillStyle = fill; c.fill();
     if (stroke) { c.lineWidth = 1.5; c.strokeStyle = stroke; c.stroke(); }
   };
-  View.prototype.cross = function (p, { size = 6, stroke = '#171a1f', width = 1.5 } = {}) {
+  View.prototype.cross = function (p, { size = 6, stroke = theme().fg, width = 1.5 } = {}) {
     const c = this.ctx, [x, y] = this.toPx(p);
     c.strokeStyle = stroke; c.lineWidth = width; c.beginPath();
     c.moveTo(x - size, y); c.lineTo(x + size, y); c.moveTo(x, y - size); c.lineTo(x, y + size); c.stroke();
   };
-  View.prototype.label = function (p, text, { color = '#5b6470', dx = 8, dy = -8, align = 'left', font = '600 12px "DM Sans", sans-serif' } = {}) {
+  View.prototype.label = function (p, text, { color = theme().fgDim, dx = 8, dy = -8, align = 'left', font = '12px ' + theme().font } = {}) {
     const c = this.ctx, [x, y] = this.toPx(p);
     c.font = font; c.textAlign = align; c.textBaseline = 'middle';
-    c.lineWidth = 4; c.strokeStyle = 'rgba(255,255,255,.9)'; c.strokeText(text, x + dx, y + dy);
+    c.lineWidth = 4; c.lineJoin = 'round'; c.strokeStyle = theme().halo; c.strokeText(text, x + dx, y + dy);
     c.fillStyle = color; c.fillText(text, x + dx, y + dy);
   };
 
@@ -293,6 +309,6 @@
 
   global.G2 = {
     add, sub, mul, dot, cross, len, norm, SHAPES, place, support, aabb, aabbOverlap, overlaps,
-    signedDistance, minkowskiDiff, hull, clip, scaleToTouch, centroid, pointInConvex, View, draggable, fmt,
+    signedDistance, minkowskiDiff, hull, clip, scaleToTouch, centroid, pointInConvex, View, draggable, fmt, theme,
   };
 })(window);
