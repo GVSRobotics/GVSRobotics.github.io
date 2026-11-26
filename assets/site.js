@@ -4,6 +4,13 @@ if (grid) {
     .then(r => { if (!r.ok) throw new Error('Could not load projects'); return r.json(); })
     .then(projects => {
       grid.innerHTML = projects.map((p, i) => {
+        if (p.comingSoon) return `
+        <div class="project-card coming-soon reveal" style="--accent:${p.accent}">
+          <div class="meta"><span class="tag">${p.language}</span><span class="soon">Coming soon</span></div>
+          <h3>${p.name}</h3>
+          <p>${p.shortDescription}</p>
+          <span class="card-link">Release in preparation</span>
+        </div>`;
         const external = /^https?:\/\//.test(p.cardHref);
         const isGithub = /^https?:\/\/github\.com\//.test(p.cardHref);
         const label = isGithub ? 'View on GitHub →' : external ? 'Visit project site →' : 'View project →';

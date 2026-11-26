@@ -1,5 +1,14 @@
 [
   {
+    "slug": "sorosimpp",
+    "name": "SoRoSim++",
+    "language": "C++20 · Python",
+    "accent": "#d9662b",
+    "comingSoon": true,
+    "cardHref": "",
+    "shortDescription": "A fast C++ engine for simulating soft, rigid, and hybrid robots with the Geometric Variable Strain model. Dynamics with analytical derivatives, contact, cable actuation, an interactive viewer, and Python bindings."
+  },
+  {
     "slug": "idcol",
     "name": "iDCOL",
     "language": "C++",
