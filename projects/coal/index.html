@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>COAL (GVS Robotics fork) — Collision Detection, Explained</title>
-<meta name="description" content="COAL answers the question every robot asks thousands of times a second: are these two objects touching, and if not, how far apart are they? An interactive introduction to the GVS Robotics fork of Coal." />
+<title>COAL, a GVSRobotics adaptation of Coal — Collision Detection, Explained</title>
+<meta name="description" content="COAL answers the question every robot asks thousands of times a second: are these two objects touching, and if not, how far apart are they? An interactive introduction to COAL, a GVSRobotics adaptation of the Coal collision library." />
 <link rel="stylesheet" href="../../assets/project-site.css" />
 <script defer src="../../assets/geom2d.js"></script>
 <script defer src="../../assets/project-site.js"></script>
@@ -14,7 +14,7 @@
 
 <nav class="nav">
   <div class="wrap nav-row">
-    <a class="wordmark" href="#top">COAL<small>GVS fork</small></a>
+    <a class="wordmark" href="#top">COAL<small>a GVSRobotics adaptation</small></a>
     <div class="nav-links">
       <a class="opt" href="#try">Try it</a>
       <a class="opt" href="#how">How it works</a>
@@ -30,12 +30,12 @@
 <header class="hero" id="top">
   <div class="wrap hero-intro">
     <a class="crumb" href="../../">← GVS Robotics</a>
-    <span class="eyebrow">Collision detection · GVS Robotics fork of Coal</span>
+    <span class="eyebrow">Collision detection · a GVSRobotics adaptation of Coal</span>
     <h1>Are these two objects touching? If not, how far apart are they?</h1>
     <p class="hero-thesis">
       Robots ask this thousands of times a second: before an arm moves, when a
       foot lands, at every step of a simulation. COAL answers quickly and
-      precisely for almost any pair of 3D shapes. This fork also reports
+      precisely for almost any pair of 3D shapes. Our adaptation also reports
       <em>how that answer changes</em> when an object moves, which motion
       planners and learning systems need.
     </p>
@@ -43,13 +43,15 @@
       <a class="btn" href="https://gvsrobotics.github.io/coal/">Open the 3D playground &rarr;</a>
       <a class="btn quiet" href="#try">Try the 2D demo</a>
       <a class="btn quiet" href="#quickstart">Quickstart</a>
-      <a class="btn quiet" href="https://github.com/GVSRobotics/coal">View source</a>
+      <a class="btn quiet" href="https://github.com/GVSRobotics/coal">Our adaptation</a>
+      <a class="btn quiet" href="https://github.com/coal-library/coal">Original Coal ↗</a>
     </div>
     <p class="hero-note">
-      COAL is not originally a GVS Robotics library. <a href="https://github.com/coal-library/coal">Coal</a>
-      is developed mainly at Inria and LAAS-CNRS, and is used by Pinocchio and other robotics frameworks.
-      This fork keeps its names and interfaces and adds contact derivatives, a
-      <code>TruncatedCone</code> shape, and a browser playground.
+      <strong>Credit where it's due:</strong> Coal is not our library. It is developed by the
+      <a href="https://github.com/coal-library/coal">Coal team</a> (mainly Inria and LAAS-CNRS) and grew out of
+      <a href="https://github.com/flexible-collision-library/fcl">FCL</a>, the Flexible Collision Library
+      started at Willow Garage. We adapted it for our own research: it keeps Coal's names and interfaces, and
+      adds contact derivatives, a <code>TruncatedCone</code> shape, and a browser playground.
     </p>
   </div>
 </header>
@@ -152,13 +154,13 @@
 <section id="derivatives">
   <div class="wrap">
     <div class="section-head">
-      <span class="eyebrow">What this fork adds</span>
+      <span class="eyebrow">What our adaptation adds</span>
       <h2>How does the answer change when something moves?</h2>
       <p class="section-lede">
         A planner steering an arm away from an obstacle needs more than the
         distance. It needs to know <strong>how the distance will change</strong>
         for each small move it could make, which is the <em>derivative</em>.
-        Computing it reliably is this fork's main addition. Predict the new
+        Computing it reliably is our main addition. Predict the new
         distance from the derivative, then compare with the true answer.
       </p>
     </div>
@@ -255,14 +257,14 @@
 <section id="fork">
   <div class="wrap">
     <div class="section-head">
-      <span class="eyebrow">This fork</span>
-      <h2>Upstream Coal, plus three additions.</h2>
+      <span class="eyebrow">Our adaptation</span>
+      <h2>The original Coal, plus three additions.</h2>
       <p class="section-lede">
         Upstream Coal grew out of the Flexible Collision Library (FCL) and was
         renamed from HPP-FCL in 2024. It powers Pinocchio, Crocoddyl, the
         Humanoid Path Planner, and the Simple simulator. It supports boxes,
         spheres, capsules, cylinders, cones, ellipsoids, planes, convex meshes,
-        height fields, and octrees. This fork keeps the <code>coal::</code> and
+        height fields, and octrees. Our adaptation keeps the <code>coal::</code> and
         <code>import coal</code> interfaces and adds:
       </p>
     </div>
@@ -279,7 +281,7 @@
   <div class="wrap">
     <div class="section-head">
       <span class="eyebrow">Quickstart</span>
-      <h2>Build the fork, then query a contact and its derivative.</h2>
+      <h2>Build it, then query a contact and its derivative.</h2>
       <p class="section-lede">Build from source with <a href="https://pixi.sh/latest/#installation">Pixi</a>. The <code>test</code> task installs dependencies, builds, and runs the test suite.</p>
     </div>
     <div class="code-panel">
@@ -340,13 +342,13 @@ coal::Transform3s T_AB(coal::Matrix3s::Identity(), coal::Vec3s(2.2, 0.1, 0.2));
     <nav class="family" aria-label="Related projects">
       <a href="https://gvsrobotics.github.io/iDCOL/"><span class="card-badge">Smooth implicit shapes</span><span class="fam-name"><em>i</em>DCOL</span><span class="card-text">Contact and exact derivatives for strictly convex implicit shapes, via one fixed-size Newton solve.</span></a>
       <a href="../dcolpp/"><span class="card-badge">Convex primitives</span><span class="fam-name">DCOL<em>++</em></span><span class="card-text">A smooth "scale-to-touch" measure with exact first and second derivatives, built for optimizers.</span></a>
-      <a class="here" href="#top" aria-current="page"><span class="card-badge">Almost any geometry · you are here</span><span class="fam-name">COAL</span><span class="card-text">True distance and contact patches for primitives, meshes, and more, plus contact derivatives.</span></a>
+      <a class="here" href="#top" aria-current="page"><span class="card-badge">Adapted from Coal · you are here</span><span class="fam-name">COAL</span><span class="card-text">True distance and contact patches for primitives, meshes, and more, plus contact derivatives.</span></a>
     </nav>
   </div>
 </section>
 
 <footer class="wrap">
-  <span>COAL, GVS Robotics fork · <a href="../../">GVSRobotics</a></span>
+  <span>COAL, a GVSRobotics adaptation of <a href="https://github.com/coal-library/coal">Coal</a> · <a href="../../">GVSRobotics</a></span>
   <span>
     <a href="https://github.com/GVSRobotics/coal">github.com/GVSRobotics/coal</a>
     &nbsp;&middot;&nbsp;

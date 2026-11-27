@@ -7,60 +7,118 @@
   <title>GVS Robotics | Open-source robotics research</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/styles.css">
   <script defer src="assets/site.js"></script>
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="./" aria-label="GVS Robotics home">
-      <img class="brand-logo" src="assets/logo-icon.png" alt="GVS Robotics logo">
-      <span>GVS Robotics</span>
-    </a>
-    <nav aria-label="Primary navigation">
-      <a href="#projects">Projects</a>
-      <a href="#research">Research</a>
-      <a href="https://github.com/GVSRobotics">GitHub ↗</a>
-    </nav>
+    <div class="container">
+      <a class="brand" href="./" aria-label="GVS Robotics home">
+        <img class="brand-logo" src="assets/logo-icon.png" alt="GVS Robotics logo">
+        <span>GVS Robotics</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="#projects">Projects</a>
+        <a href="#people">People</a>
+        <a href="https://github.com/GVSRobotics">GitHub ↗</a>
+      </nav>
+    </div>
   </header>
 
-  <main>
+  <main class="container">
     <section class="hero">
-      <p class="eyebrow">Open-source robotics research</p>
-      <h1>Geometry, mechanics, and intelligence for robots that interact with the world.</h1>
-      <p class="hero-lede">We build computational tools for soft and hybrid robotics—spanning differentiable contact, continuum mechanics, simulation, and planning.</p>
-      <div class="hero-actions">
-        <a class="link-arrow" href="#projects">Explore projects →</a>
-        <a class="link-arrow" href="https://github.com/GVSRobotics">View organization ↗</a>
+      <div>
+        <h1>Geometry, mechanics, and intelligence for robots that interact with the world.</h1>
+        <p class="hero-lede">We build open-source tools for soft and hybrid robotics: differentiable contact, continuum mechanics, simulation, and planning.</p>
+        <div class="hero-links">
+          <a href="#projects">Projects</a>
+          <a class="quiet" href="https://github.com/GVSRobotics">GitHub ↗</a>
+        </div>
+      </div>
+      <div class="hero-media">
+        <video src="assets/video1.mp4" poster="assets/video1-poster.jpg" autoplay muted loop playsinline preload="metadata" aria-label="SoRoSim++ simulation of a hybrid gripper picking, rotating, and placing an object"></video>
       </div>
     </section>
 
-    <section class="section projects-section" id="projects">
-      <div class="section-heading">
-        <h2>Projects</h2>
-        <p>Open-source libraries for simulating robots and the contacts they make. Source code is on GitHub, and several can be tried in the browser.</p>
-      </div>
+    <section class="section" id="projects">
+      <h2>Projects</h2>
       <div id="project-grid" class="project-grid" aria-live="polite"></div>
       <noscript><p>Please enable JavaScript to view the project cards.</p></noscript>
     </section>
 
-    <section class="section research-section" id="research">
-      <div class="section-heading">
-        <h2>Research approach</h2>
-        <p>Three ideas guide what we build.</p>
+    <section class="section" id="people">
+      <h2>People</h2>
+
+      <h3 class="group">Developers</h3>
+      <div class="people">
+        <div class="person">
+          <img src="assets/people/anup-teejo-mathew.jpg" alt="Anup Teejo Mathew" loading="lazy">
+          <strong>Anup Teejo Mathew</strong>
+          <span>Research Scientist<br>Khalifa University</span>
+          <div class="links"><a href="https://scholar.google.com/citations?user=1ezZWI8AAAAJ&amp;hl=en">Scholar</a><a href="https://github.com/anupteejo">GitHub</a></div>
+        </div>
+        <div class="person">
+          <img src="assets/people/anees-peringal.jpg" alt="Anees Basheer Peringal" loading="lazy">
+          <strong>Anees Basheer Peringal</strong>
+          <span>PhD Student<br>Khalifa University</span>
+          <div class="links"><a href="https://scholar.google.com/citations?user=658txcwAAAAJ&amp;hl=en">Scholar</a></div>
+        </div>
+        <div class="person">
+          <img src="assets/people/daniele-caradonna.jpg" alt="Daniele Caradonna" loading="lazy">
+          <strong>Daniele Caradonna</strong>
+          <span>PhD Student<br>Scuola Superiore Sant'Anna</span>
+          <div class="links"><a href="https://scholar.google.com/citations?user=8HV_Y7wAAAAJ&amp;hl=it">Scholar</a></div>
+        </div>
+        <div class="person">
+          <img src="assets/people/mohammed-tarnini.jpg" alt="Mohammed Tarnini" loading="lazy">
+          <strong>Mohammed Tarnini</strong>
+          <span>PhD Student<br>Khalifa University</span>
+          <div class="links"><a href="https://scholar.google.com/citations?user=zmpMlB8AAAAJ&amp;hl=en">Scholar</a></div>
+        </div>
+        <div class="person">
+          <img src="assets/people/fathinah-asma-izzati.jpg" alt="Fathinah Asma Izzati" loading="lazy">
+          <strong>Fathinah Asma Izzati</strong>
+          <span>PhD Student<br>Khalifa University</span>
+          <div class="links"><a href="https://scholar.google.com/citations?user=aQu7EU4AAAAJ&amp;hl=en">Scholar</a></div>
+        </div>
+        <div class="person">
+          <img src="assets/people/maximilian-stolzle.jpg" alt="Maximilian Stölzle" loading="lazy">
+          <strong>Maximilian Stölzle</strong>
+          <span>Postdoc<br>MIT</span>
+          <div class="links"><a href="https://scholar.google.com/citations?user=yHmOzBsAAAAJ&amp;hl=de">Scholar</a></div>
+        </div>
       </div>
-      <div class="principles">
-        <article><span>01</span><h3>Mechanics first</h3><p>Models grounded in geometry, kinematics, and continuum mechanics.</p></article>
-        <article><span>02</span><h3>Differentiable by design</h3><p>Analytical derivatives for simulation, planning, and optimization.</p></article>
-        <article><span>03</span><h3>Built to be used</h3><p>Clear APIs, reproducible examples, and open implementations.</p></article>
+
+      <h3 class="group">Faculty</h3>
+      <div class="people">
+        <div class="person">
+          <img src="assets/people/federico-renda.jpg" alt="Federico Renda" loading="lazy">
+          <strong>Federico Renda</strong>
+          <span>Associate Professor of Robotics<br>Khalifa University</span>
+          <div class="links"><a href="https://www.ku.ac.ae/college-people/federico-renda">Profile</a></div>
+        </div>
+        <div class="person">
+          <img src="assets/people/frederic-boyer.jpg" alt="Frédéric Boyer" loading="lazy">
+          <strong>Frédéric Boyer</strong>
+          <span>Professor of Robotics<br>IMT Atlantique</span>
+          <div class="links"><a href="https://www.imt-atlantique.fr/fr/temoignages/frederic-boyer">Profile</a></div>
+        </div>
+        <div class="person">
+          <img src="assets/people/vincent-lebastard.jpg" alt="Vincent Lebastard" loading="lazy">
+          <strong>Vincent Lebastard</strong>
+          <span>Professor, LS2N<br>IMT Atlantique</span>
+          <div class="links"><a href="https://scholar.google.com/citations?user=4M262W0AAAAJ&amp;hl=fr">Scholar</a></div>
+        </div>
       </div>
     </section>
   </main>
 
   <footer>
-    <div><strong>GVS Robotics</strong><p>Open-source tools for the next generation of robotic systems.</p></div>
-    <div class="footer-links"><a href="https://github.com/GVSRobotics">GitHub</a><a href="mailto:gvsrobotics@gmail.com">Email</a></div>
-    <p class="copyright">© <span id="year"></span> GVS Robotics</p>
+    <div class="container">
+      <span>© <span id="year"></span> GVS Robotics</span>
+      <div class="footer-links"><a href="https://github.com/GVSRobotics">GitHub</a><a href="mailto:gvsrobotics@gmail.com">gvsrobotics@gmail.com</a></div>
+    </div>
   </footer>
 </body>
 </html>

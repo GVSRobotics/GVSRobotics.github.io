@@ -64,10 +64,12 @@
   {
     "slug": "coal",
     "name": "COAL",
+    "subtitle": "a GVSRobotics adaptation",
+    "origin": {"label": "Original: coal-library/coal", "url": "https://github.com/coal-library/coal"},
     "language": "C++ · Python",
     "accent": "#b3402a",
     "cardHref": "projects/coal/",
-    "shortDescription": "Our fork of the Coal collision library: fast distance and contact queries, plus contact derivatives, a truncated-cone shape, and a browser playground.",
+    "shortDescription": "Our adaptation of Coal, the collision-detection library that grew out of FCL (Willow Garage). We added contact derivatives, a truncated-cone shape, and a browser playground.",
     "kicker": "Are these two objects touching? If not, how far apart are they?",
     "description": "A fork of Coal, the GJK/EPA-based collision and distance library used by Pinocchio and other robotics frameworks, extended for differentiable contact.",
     "body": "The fork adds experimental contact derivatives (piecewise exact or randomized smoothing), a TruncatedCone primitive, and an interactive WebAssembly playground.",
